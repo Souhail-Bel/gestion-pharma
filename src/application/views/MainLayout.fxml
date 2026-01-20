@@ -68,6 +68,21 @@
             <Insets left="15.0"/>
           </padding>
         </Button>
+        <Button fx:id="btnHistorique" graphicTextGap="20.0" mnemonicParsing="false" onAction="#handleShowHistorique" prefHeight="50.0" prefWidth="220.0" styleClass="sidebar-btn" text="Historique">
+          <font>
+            <Font size="16.0"/>
+          </font>
+          <graphic>
+            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@../res/icons/hist.png"/>
+              </image>
+            </ImageView>
+          </graphic>
+          <padding>
+            <Insets left="15.0"/>
+          </padding>
+        </Button>
         <Button fx:id="btnFournisseurs" graphicTextGap="20.0" mnemonicParsing="false" onAction="#handleShowFournisseurs" prefHeight="50.0" prefWidth="220.0" styleClass="sidebar-btn" text="Fournisseurs">
           <font>
             <Font size="16.0"/>

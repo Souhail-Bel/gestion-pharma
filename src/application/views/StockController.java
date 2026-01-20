@@ -106,9 +106,10 @@ public class StockController {
     	btnNext.setDisable(currPage >= nombrePages-1);
     }
     
+    
+    // populer le table
     private void setupTableColumns() {
     	
-    	// populer le 
     	colQuantite.setCellValueFactory(new PropertyValueFactory<>("quantiteDisponible"));
     	
     	colId.setCellValueFactory(cellData -> 

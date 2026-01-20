@@ -141,6 +141,11 @@ public class UI_Controller {
     	loadView("VenteLayout.fxml");
     }
     
+    @FXML
+    void handleShowHistorique(ActionEvent event) {
+    	loadView("HistoriqueLayout.fxml");
+    }
+    
     private void loadView(String fxmlFile) {
     	try {
     		// NOTE: les views doivent etre dans le meme package "application.views"

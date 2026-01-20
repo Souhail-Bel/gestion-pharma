@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.HistoriqueController">
+   <children>
+      <SplitPane dividerPositions="0.6" layoutX="200.0" layoutY="120.0" prefHeight="600.0" prefWidth="900.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <VBox layoutX="57.0" layoutY="56.0" prefHeight="598.0" prefWidth="536.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label style="-fx-padding: 10;" text="Historique des Ventes" textFill="#00796b">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <TableView fx:id="tableVentes" VBox.vgrow="ALWAYS">
+                          <columns>
+                            <TableColumn fx:id="colId" prefWidth="50.0" text="#" />
+                            <TableColumn fx:id="colDate" prefWidth="150.0" text="Date" />
+                            <TableColumn fx:id="colClient" prefWidth="150.0" text="Client" />
+                            <TableColumn fx:id="colTotal" prefWidth="100.0" text="Total" />
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <VBox layoutX="66.0" layoutY="88.0" prefHeight="598.0" prefWidth="356.0" spacing="10.0" style="-fx-padding: 10; -fx-background-color: #F4F7F6;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label text="Détails de la commande">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lblDetailInfo" text="Sélectionnez une vente..." textFill="#616161" wrapText="true" />
+                        <TableView fx:id="tableDetails" VBox.vgrow="ALWAYS">
+                          <columns>
+                            <TableColumn fx:id="colDetProduit" prefWidth="150.0" text="Produit" />
+                            <TableColumn fx:id="colDetQte" prefWidth="50.0" text="Qté" />
+                              <TableColumn fx:id="colDetTotal" prefWidth="75.0" text="S/Total" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

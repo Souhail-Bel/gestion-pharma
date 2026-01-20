@@ -20,18 +20,11 @@
     <HBox alignment="CENTER_LEFT" spacing="15.0">
       <children>
         <VBox>
-          <children>
-            <Label text="Gestion de Stock" textFill="#00796b">
-              <font>
-                <Font name="System Bold" size="24.0"/>
-              </font>
-            </Label>
-            <Label text="Inventaire et Alertes" textFill="#757575">
-              <font>
-                <Font size="14.0"/>
-              </font>
-            </Label>
-          </children>
+          <Label text="Gestion de Stock" textFill="#00796b">
+            <font>
+              <Font name="System Bold" size="24.0"/>
+            </font>
+          </Label>
         </VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" prefHeight="35.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-border-color: #E0E0E0; -fx-border-radius: 20;">

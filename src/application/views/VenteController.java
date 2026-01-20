@@ -140,7 +140,6 @@ public class VenteController {
     			for(LigneVente lv : panierList) {
     				vente.addLigne(lv);
     				
-    				// TODO mettre à jour DB
     				for (Stock stockItem : DataService.getStockGlobal()) {
     					if(stockItem.getProduit().getId() == lv.getProduit().getId()) {
     						int ancQte = stockItem.getQuantiteDisponible();
@@ -152,6 +151,8 @@ public class VenteController {
     					}
     				}
     			}
+    			
+    			DataService.getHistoriqueVentes().add(vente);
     			
     			Alert alert = new Alert(
     					Alert.AlertType.INFORMATION,

@@ -1,0 +1,22 @@
+.sidebar {
+    -fx-background-color: #00796B;
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-cursor: hand;
+}
+
+
+.sidebar-btn:hover {
+    -fx-background-color: #009688;
+    -fx-border-color: white;
+    -fx-border-width: 0 0 0 4px;
+    -fx-padding: 10 10 10 26;
+}
+
+.dimmer {
+    -fx-background-color: black;
+}

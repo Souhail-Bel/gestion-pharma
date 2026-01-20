@@ -2,10 +2,9 @@ package application.views;
 
 import java.util.List;
 
-import application.modeles.Produit;
 import application.modeles.Stock;
+import application.services.DataService;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -37,7 +36,6 @@ public class StockController {
     @FXML private Label lblPageInfo;
     @FXML private TextField searchField;
     
-    private ObservableList<Stock> stockList = FXCollections.observableArrayList();
     private FilteredList<Stock> filteredData;
     private SortedList<Stock> sortedData;
     
@@ -48,9 +46,8 @@ public class StockController {
     @FXML
     public void initialize() {
     	setupTableColumns();
-    	loadData();
     	
-    	filteredData = new FilteredList<>(stockList, p -> true);
+    	filteredData = new FilteredList<>(DataService.getStockGlobal(), p -> true);
     	
     	// fonction rechercher
     	searchField.textProperty().addListener(
@@ -72,6 +69,19 @@ public class StockController {
     	sortedData = new SortedList<>(filteredData);
     	sortedData.comparatorProperty().bind(tableStock.comparatorProperty());
     	miseAJourTable();
+    	
+    	
+    	// double clic fait un edit de produit
+    	tableStock.setRowFactory(tv -> {
+    	    TableRow<Stock> row = new TableRow<>();
+    	    row.setOnMouseClicked(event -> {
+    	        if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+    	            Stock rowData = row.getItem();
+    	            handleEditProduit(rowData);
+    	        }
+    	    });
+    	    return row;
+    	});
     }
     
     private void miseAJourTable() {
@@ -144,46 +154,47 @@ public class StockController {
     	});
     }
 
-    private void loadData() {
-    	Produit p1 = new Produit(1, "Augmentin 1g/125mg", 10.5, 5);
-    	Produit p2 = new Produit(2, "Perinase", 7.25, 100);
-    	Produit p3 = new Produit(3, "Copred ODT 20mg", 15.75, 200);
-    	Produit p4 = new Produit(4, "Physiol", 1.25, 100);
-    	Produit p5 = new Produit(5, "Allergica 10mg", 14, 20);
-    	
-    	stockList.add(new Stock(p1, 50));
-    	stockList.add(new Stock(p2, 20));
-    	stockList.add(new Stock(p3, 100));
-    	stockList.add(new Stock(p4, 700));
-    	stockList.add(new Stock(p5, 10));
-    	
-    	for(int i=6; i <= 55; i++) {
-	    	Produit p = new Produit(i, "Produit Test N°"+i, 10.0+i, 50);
-	    	stockList.add(new Stock(p, (int) (Math.random() * 500)));
-    	}
-    }
-
     @FXML
     void handleAjouterProduit(ActionEvent event) {
     	try {
     		FXMLLoader loader = new FXMLLoader(getClass().getResource("AjoutProduitLayout.fxml"));
     		Parent root = loader.load();
     		
+    		Stage stage = new Stage();
+    		// bloquer main window
+    		stage.initModality(Modality.APPLICATION_MODAL);
+    		stage.initStyle(StageStyle.UNDECORATED);
+    		stage.setScene(new Scene(root));
+    		stage.showAndWait();
+    		
+    		tableStock.refresh();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+
+    
+    private void handleEditProduit(Stock stock) {
+    	try {
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("AjoutProduitLayout.fxml"));
+    		Parent root = loader.load();
+    		
     		AjoutProduitController ctrl = loader.getController();
-    		ctrl.setStockList(stockList);
+    		ctrl.setStockData(stock);
     		
     		Stage stage = new Stage();
     		// bloquer main window
     		stage.initModality(Modality.APPLICATION_MODAL);
     		stage.initStyle(StageStyle.UNDECORATED);
     		stage.setScene(new Scene(root));
-    		
     		stage.showAndWait();
+    		
+    		tableStock.refresh();
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
     }
-
+    
     @FXML
     void handlePrevPage(ActionEvent event) {
     	if(currPage > 0) {

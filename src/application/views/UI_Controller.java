@@ -25,6 +25,10 @@ public class UI_Controller {
 	public static void setUtilisateur(Employe usr) {
 		currUtilisateur = usr;
 	}
+	
+	public static Employe getUtilisateur() {
+		return currUtilisateur;
+	}
 
 	
 	@FXML private VBox sidebar;

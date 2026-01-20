@@ -6,7 +6,7 @@ public class Produit {
 	private double prixVente;
 	private int seuilMinimal;
 	
-	public Produit(int id, String nom, double prixVente, int quantiteDisponible, int seuilMinimal) {
+	public Produit(int id, String nom, double prixVente, int seuilMinimal) {
 		this.id = id;
 		this.nom = nom;
 		this.prixVente = prixVente;

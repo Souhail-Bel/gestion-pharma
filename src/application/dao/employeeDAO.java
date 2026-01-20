@@ -1,4 +1,34 @@
 package application.dao;
+import application.modeles.Employe;
+import java.sql.*;
 
 public class employeeDAO {
+    private Connection connection;
+
+    public employeeDAO(Connection connection) {
+        this.connection = connection;
+    }
+
+    public Employe findEmployeByUsername(String username) throws SQLException {
+        String query = "SELECT * FROM employes WHERE username = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Employe(
+                    rs.getInt("id"),
+                    rs.getString("nom"),
+                    rs.getString("prenom"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("role")
+                );
+            } else {
+                return null;
+            }
+        }
+    }
+
+
+
 }

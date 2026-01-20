@@ -15,6 +15,7 @@ public class Employe {
 	private String username;
 	private String password;
 	private Role role;
+	public Employe(){};
 	
 	public Employe(int id, String nom, String prenom, String username, String password, String role_str) {
 		this.id = id;

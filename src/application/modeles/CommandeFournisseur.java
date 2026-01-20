@@ -26,7 +26,7 @@ public class CommandeFournisseur {
 		}
 	}
 
-	public String getId() { return id; }
+	public int getId() { return id; }
 	public Fournisseur getFournisseur() {return fournisseur;}
 	public LocalDateTime getDate() {return date;}
 	public StatutCommande getStatut() {return statut;}

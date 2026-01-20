@@ -30,7 +30,7 @@
           <graphic>
             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
               <image>
-                <Image url="@../res/icons/dashboard.png"/>
+                <Image url="@../res/icons/admin.png"/>
               </image>
             </ImageView>
           </graphic>
@@ -103,21 +103,6 @@
             <Insets top="50.0"/>
           </VBox.margin>
         </Separator>
-        <Button fx:id="btnAdmin" graphicTextGap="20.0" mnemonicParsing="false" onAction="#handleShowAdmin" prefHeight="50.0" prefWidth="220.0" styleClass="sidebar-btn" text="Administration">
-          <font>
-            <Font size="16.0"/>
-          </font>
-          <graphic>
-            <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-              <image>
-                <Image url="@../res/icons/admin.png"/>
-              </image>
-            </ImageView>
-          </graphic>
-          <padding>
-            <Insets left="15.0"/>
-          </padding>
-        </Button>
         <Button fx:id="btnLogout" graphicTextGap="20.0" mnemonicParsing="false" onAction="#handleLogout" prefHeight="50.0" prefWidth="220.0" styleClass="sidebar-btn" text="Déconnexion">
           <font>
             <Font size="14.0"/>

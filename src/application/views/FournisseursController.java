@@ -1,22 +1,22 @@
 package application.views;
 
-import application.modeles.LigneCommandeFournisseur;
-import application.modeles.Stock;
 import application.modeles.*;
 import application.services.DataService;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.util.Callback;
+import javafx.stage.Stage;
 
 import java.time.format.DateTimeFormatter;
 
 public class FournisseursController {
 
-    // --- TAB 1: COMMANDES ---
+    // commandes
     @FXML private TableView<CommandeFournisseur> tableCommandes;
     @FXML private TableColumn<CommandeFournisseur, Integer> colCmdId;
     @FXML private TableColumn<CommandeFournisseur, String> colCmdDate;
@@ -24,12 +24,13 @@ public class FournisseursController {
     @FXML private TableColumn<CommandeFournisseur, String> colCmdStatut;
     @FXML private TableColumn<CommandeFournisseur, Void> colCmdAction;
 
-    // --- TAB 2: FOURNISSEURS ---
+    // fournisseurs
     @FXML private TextField txtSearchFournisseur;
     @FXML private TableView<Fournisseur> tableFournisseurs;
     @FXML private TableColumn<Fournisseur, String> colFourNom;
     @FXML private TableColumn<Fournisseur, String> colFourTel;
     @FXML private TableColumn<Fournisseur, String> colFourEmail;
+    @FXML private TableColumn<Fournisseur, String> colFourAdress;
 
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -37,6 +38,23 @@ public class FournisseursController {
     public void initialize() {
         setupCommandeTable();
         setupFournisseurTable();
+        
+        
+        // modifier seulement received/cancelled
+        tableCommandes.setRowFactory(tv -> {
+            TableRow<CommandeFournisseur> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    CommandeFournisseur rowData = row.getItem();
+                    if (rowData.getStatut() == StatutCommande.CREATED || rowData.getStatut() == StatutCommande.MODIFIED) {
+                    	ouvrirCommandeForm(rowData);
+                    } else {
+                        new Alert(Alert.AlertType.INFORMATION, "Impossible de modifier une commande déjà traitée.").show();
+                    }
+                }
+            });
+            return row;
+        });
     }
 
     private void setupCommandeTable() {
@@ -46,7 +64,6 @@ public class FournisseursController {
         colCmdDate.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getDate().format(fmt)));
         colCmdFournisseur.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getFournisseur().getNom()));
         
-        // Custom Style for Status
         colCmdStatut.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getStatut().toString()));
         colCmdStatut.setCellFactory(col -> new TableCell<>() {
             @Override
@@ -66,7 +83,7 @@ public class FournisseursController {
             }
         });
 
-        // ACTION BUTTON: "Marquer Reçu"
+
         colCmdAction.setCellFactory(param -> new TableCell<>() {
             private final Button btn = new Button("📥 Réceptionner");
 
@@ -84,7 +101,7 @@ public class FournisseursController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    // Only show button if status is NOT Received/Canceled
+                    // afficher button if not received/canceled
                     CommandeFournisseur cmd = getTableView().getItems().get(getIndex());
                     boolean editable = (cmd.getStatut() == StatutCommande.CREATED || cmd.getStatut() == StatutCommande.MODIFIED);
                     setGraphic(editable ? btn : null);
@@ -98,16 +115,36 @@ public class FournisseursController {
         colFourNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colFourTel.setCellValueFactory(new PropertyValueFactory<>("telephone"));
         colFourEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+        colFourAdress.setCellValueFactory(new PropertyValueFactory<>("adresse"));
     }
 
-    // --- ACTIONS ---
 
     @FXML
     void handleNouvelleCommande(ActionEvent event) {
-        // TODO: Open Popup "NouvelleCommandeLayout.fxml"
-        // This will be similar to the Vente layout but adding to Stock instead of reducing
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Formulaire de commande à implémenter !");
-        alert.show();
+    	ouvrirCommandeForm(null);
+    }
+    
+
+
+    void ouvrirCommandeForm(CommandeFournisseur commande) {
+    	try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("NouvelleCommandeLayout.fxml"));
+            Parent root = loader.load();
+            
+            NouvelleCommandeController ctrl = loader.getController();
+            if (commande != null) {
+            	ctrl.setCurrCommande(commande);
+            }
+            
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle(commande == null ? "Nouvelle Commande" : "Modifier Commande");
+            stage.showAndWait();
+            
+            tableCommandes.refresh(); // Refresh list after close
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

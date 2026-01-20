@@ -19,4 +19,8 @@ public class LigneCommandeFournisseur {
 	public double getTotal() {return quantite * prixAchat;}
 	public int getQuantite() {return quantite; }
 
+
+	public void setCommande(CommandeFournisseur cmd) {
+		this.commande = cmd;
+	}
 }

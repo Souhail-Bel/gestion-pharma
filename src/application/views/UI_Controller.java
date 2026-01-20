@@ -39,7 +39,6 @@ public class UI_Controller {
 	private final double COLLAPSED_WIDTH = 60.0;
 	private final double EXPANDED_WIDTH = 220.0;
 	
-    @FXML private Button btnAdmin;
     @FXML private Button btnDashboard;
     @FXML private Button btnFournisseurs;
     @FXML private Button btnLogout;
@@ -113,17 +112,12 @@ public class UI_Controller {
     }
 
     @FXML
-    void handleShowAdmin(ActionEvent event) throws AccesRefuseException {
+    void handleShowDashboard(ActionEvent event) throws AccesRefuseException {
     	if(currUtilisateur != null && currUtilisateur.estAdmin()) {
     		loadView("AdminLayout.fxml");
     	} else {
     		throw new AccesRefuseException(currUtilisateur.getUsername() + "n'est pas Admin!");
     	}
-    }
-
-    @FXML
-    void handleShowDashboard(ActionEvent event) {
-    	loadView("DashboardLayout.fxml");
     }
 
     @FXML

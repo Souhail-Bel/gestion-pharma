@@ -30,6 +30,7 @@ public class UI_Controller {
 	@FXML private VBox sidebar;
 	@FXML private Pane dimmer;
 	@FXML private Label lblTitle;
+	@FXML private Label lblWelcome;
 	
 	private final double COLLAPSED_WIDTH = 60.0;
 	private final double EXPANDED_WIDTH = 220.0;
@@ -47,6 +48,10 @@ public class UI_Controller {
     
     @FXML
     public void initialize() {
+    	
+    	if(currUtilisateur != null)
+    		lblWelcome.setText("Bienvenue, " + currUtilisateur.getNom());
+    	
     	sidebar.setPrefWidth(COLLAPSED_WIDTH);
     	lblTitle.setVisible(false);
     	

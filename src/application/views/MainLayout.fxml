@@ -119,7 +119,7 @@
       <children>
         <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #F4F7F6;">
           <children>
-            <Label text="Bienvenue" textFill="#9e9e9e">
+            <Label fx:id="lblWelcome" text="Bienvenue" textFill="#9e9e9e">
               <font>
                 <Font size="24.0"/>
               </font>

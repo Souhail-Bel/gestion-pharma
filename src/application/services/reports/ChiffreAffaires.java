@@ -1,6 +1,6 @@
 package application.services.reports;
 
-import application.dao.venteDAO;
+import application.dao.VenteDAO;
 import application.modeles.Vente;
 import application.resources.DatabaseConnection;
 
@@ -8,15 +8,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ChiffreAffaires {
-    private venteDAO venteDAO;
+    private VenteDAO VenteDAO;
     public ChiffreAffaires() throws SQLException {
-        this.venteDAO = new venteDAO(DatabaseConnection.getConnection());
+        this.VenteDAO = new VenteDAO(DatabaseConnection.getConnection());
     }
     public double getChiffreAffaires() throws SQLException {
-        return venteDAO.getTotalVentes();
+        return VenteDAO.getTotalVentes();
     }
     public ArrayList<Vente> getAllVentes() throws SQLException {
-        return venteDAO.getAllVentes();
+        return VenteDAO.getAllVentes();
     }
 
 }

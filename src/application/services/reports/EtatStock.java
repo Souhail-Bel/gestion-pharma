@@ -1,7 +1,6 @@
 package application.services.reports;
 
-import application.dao.produitDAO;
-import application.dao.stockDAO;
+import application.dao.StockDAO;
 import application.modeles.Stock;
 import application.resources.DatabaseConnection;
 
@@ -9,8 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class EtatStock {
-    private produitDAO produitDAO= new produitDAO(DatabaseConnection.getConnection());
-    private stockDAO stockDAO= new stockDAO(DatabaseConnection.getConnection());
+    private StockDAO stockDAO = new StockDAO(DatabaseConnection.getConnection());
 
     public EtatStock() throws SQLException {
     }

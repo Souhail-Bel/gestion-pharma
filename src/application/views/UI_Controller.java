@@ -2,16 +2,24 @@ package application.views;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 
+import application.dao.FournisseurDAO;
+import application.dao.StockDAO;
 import application.exceptions.AccesRefuseException;
 import application.modeles.Employe;
-
+import application.modeles.Stock;
+import application.resources.DatabaseConnection;
+import application.services.DataService;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.animation.*;
+import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -63,10 +71,33 @@ public class UI_Controller {
                 btnDashboard.setManaged(false);
             }
     		
+    		
+    		if (currUtilisateur.estAdmin()) {
+    			Connection conn;
+    	    	try {
+    	    	    conn = DatabaseConnection.getConnection();
+    	    	    StockDAO sDao = new StockDAO(conn);
+    	    	    if (sDao.getAllStocks().stream().anyMatch(Stock::estLowStock)) {
+    	    		    Alert alert = new Alert(Alert.AlertType.WARNING, "Alertes stock bas ! Vérifiez le dashboard.");
+    	    		    alert.show();
+    	    	    }
+    	    	} catch (SQLException e) {
+    	    	    e.printStackTrace();
+    	    	}
+    		}
+    		
             Label warmwelcome = new Label("Bonjour, " + currUtilisateur.getNom());
             warmwelcome.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
             contentArea.getChildren().add(warmwelcome);
         }
+    	
+    	
+    	try {
+    	    DataService.initData();
+    	} catch (SQLException e) {
+    	    e.printStackTrace();
+    	}
+    	
     	
     	sidebar.setPrefWidth(COLLAPSED_WIDTH);
     	lblTitle.setVisible(false);

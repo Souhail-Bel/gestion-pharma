@@ -1,7 +1,6 @@
 package application.dao;
 
 import application.modeles.Client;
-import application.modeles.Employe;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,13 +10,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class clientDAO {
+public class ClientDAO {
     private Connection connection;
-    public clientDAO(Connection connection) {
+    public ClientDAO(Connection connection) {
         this.connection = connection;
     }
     
-    public Client FindByID(int id) throws SQLException {
+    public Client findById(int id) throws SQLException {
         String query = "SELECT * FROM CLIENT WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, id);
@@ -36,22 +35,15 @@ public class clientDAO {
         }
     }
     
-    public List<Client> getAllClients() throws SQLException {
-        List<Client> clients = new ArrayList<>();
+    public ArrayList<Client> getAllClients() throws SQLException {
+        ArrayList<Client> list = new ArrayList<>();
         String query = "SELECT * FROM CLIENT";
-        
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery(query);
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                clients.add(new Client(
-                    rs.getInt("id"),
-                    rs.getString("nom"),
-                    rs.getString("prenom"),
-                    rs.getString("telephone")
-                ));
+                list.add(new Client(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone")));
             }
         }
-        return clients;
+        return list;
     }
     
     
@@ -72,5 +64,20 @@ public class clientDAO {
             }
         }
         return -1;
+    }
+    
+    public int taille(){
+        String query="SELECT COUNT(id) FROM CLIENT";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

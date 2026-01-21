@@ -2,12 +2,13 @@ package application.dao;
 
 import application.modeles.*;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class venteDAO {
+public class VenteDAO {
     private Connection connection;
 
-    public venteDAO(Connection connection) {
+    public VenteDAO(Connection connection) {
         this.connection = connection;
     }
 

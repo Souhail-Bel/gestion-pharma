@@ -1,6 +1,8 @@
 package application.views;
 
+import application.dao.FournisseurDAO;
 import application.modeles.*;
+import application.resources.DatabaseConnection;
 import application.services.DataService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -13,6 +15,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+
+import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 
 public class FournisseursController {
@@ -46,7 +50,7 @@ public class FournisseursController {
         colCmdTotal.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getTotal())));
         colCmdStatut.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getStatut().toString()));
 
-        // THE 3-BUTTON ACTION COLUMN
+        
         colCmdAction.setCellFactory(param -> new TableCell<>() {
             private final Button btnEdit = new Button("✎");
             private final Button btnReceive = new Button("✔");
@@ -83,7 +87,6 @@ public class FournisseursController {
     }
 
     private void handleReception(CommandeFournisseur c) {
-        // Logic to increase stock
         for(LigneCommandeFournisseur l : c.getLignes()) {
             for(Stock s : DataService.getStockGlobal()) {
                 if(s.getProduit().getId() == l.getProduit().getId()) {
@@ -98,11 +101,10 @@ public class FournisseursController {
     @FXML void handleNouvelleCommande(ActionEvent e) { ouvrirCommandeForm(null); }
     
     void ouvrirCommandeForm(CommandeFournisseur c) {
-        // Your logic to open the Dialog
         try {
              FXMLLoader loader = new FXMLLoader(getClass().getResource("NouvelleCommandeLayout.fxml"));
              Parent root = loader.load();
-             // Pass 'c' to controller...
+
              Stage stage = new Stage();
              stage.setScene(new Scene(root));
              stage.showAndWait();
@@ -118,5 +120,18 @@ public class FournisseursController {
         colFourAdress.setCellValueFactory(new PropertyValueFactory<>("adresse"));
     }
     
-    @FXML void handleAjoutFournisseur(ActionEvent e) { /* Add logic */ }
+    @FXML
+    void handleAjoutFournisseur(ActionEvent ae) {
+    	try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("AjoutFournisseurLayout.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+            
+            DataService.refreshFournisseurs();
+            tableFournisseurs.refresh();
+       } catch(Exception e) { e.printStackTrace(); }
+    }
 }

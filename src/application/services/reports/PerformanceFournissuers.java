@@ -1,6 +1,6 @@
 package application.services.reports;
 
-import application.dao.lignecommandefournisseurDAO;
+import application.dao.LigneCommandeFournisseurDAO;
 import application.resources.DatabaseConnection;
 
 import java.sql.SQLException;
@@ -17,8 +17,14 @@ public class PerformanceFournissuers {
         this.totalAmount = totalAmount;
     }
     public ArrayList<PerformanceFournissuers> getPerformanceData() throws SQLException {
-        lignecommandefournisseurDAO fdao = new lignecommandefournisseurDAO(DatabaseConnection.getConnection());
+        LigneCommandeFournisseurDAO fdao = new LigneCommandeFournisseurDAO(DatabaseConnection.getConnection());
         return fdao.FournisseursWork();
     }
+    
+    public String getFournisseurNom() { return fournisseurNom; }
+	public int getFournisseurId() { return fournisseurId; }
+	
+	public int getTotalOrders() { return totalOrders; }
+	public double getTotalAmount() {return totalAmount; }
 
 }

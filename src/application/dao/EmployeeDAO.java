@@ -2,13 +2,13 @@ package application.dao;
 import application.modeles.Employe;
 import java.sql.*;
 
-public class employeeDAO {
+public class EmployeeDAO {
     private Connection connection;
 
-    public employeeDAO(Connection connection) {
+    public EmployeeDAO(Connection connection) {
         this.connection = connection;
     }
-    public Employe FindByID(int id) throws SQLException {
+    public Employe findById(int id) throws SQLException {
         String query = "SELECT * FROM EMPLOYE WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, id);

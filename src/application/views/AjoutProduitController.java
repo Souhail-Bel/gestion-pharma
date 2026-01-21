@@ -1,13 +1,17 @@
 package application.views;
 
+import application.dao.ProduitDAO;
+import application.dao.StockDAO;
 import application.modeles.Produit;
 import application.modeles.Stock;
+import application.resources.DatabaseConnection;
 import application.services.DataService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class AjoutProduitController {
@@ -49,36 +53,31 @@ public class AjoutProduitController {
     @FXML
     private void handleSave(ActionEvent event) throws SQLException {
         if (!validateInput()) return;
-
-        String nom = txtNom.getText().trim();
         
-        // verifier dupliqué
-        if(!editMode) {
-        	boolean existe = DataService.getStockGlobal().stream()
-        			.anyMatch(s -> s.getProduit().getNom().equalsIgnoreCase(nom));
-        	
-        	if(existe) {
-        		afficherErreur("Produit existe déjà! Modifez-le.");
-        		return;
-        	}
-        }
-        
-        double prix = Double.parseDouble(txtPrix.getText());
-        int quantite = spinStock.getValue();
-        int seuil = spinSeuil.getValue();
-
-        if (editMode) {
-            stockToEdit.getProduit().setNom(nom);
-            stockToEdit.getProduit().setPrixVente(prix);
-            stockToEdit.getProduit().setSeuilMinimal(seuil);
-            stockToEdit.setQuantiteDisponible(quantite);
-        } else {
-            int newId = DataService.getStockGlobal().size() + 1;
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            ProduitDAO pDao = new ProduitDAO(conn);
+            StockDAO sDao = new StockDAO(conn);
             
-            Produit p = new Produit(newId, nom, prix, seuil);
-            Stock s = new Stock(p, quantite);
-            
-            DataService.getStockGlobal().add(s);
+            if (editMode) {
+                Produit p = stockToEdit.getProduit();
+                p.setNom(txtNom.getText());
+                p.setPrixVente(Double.parseDouble(txtPrix.getText()));
+                p.setSeuilMinimal(spinSeuil.getValue());
+                pDao.update(p);
+                stockToEdit.setQuantiteDisponible(spinStock.getValue());
+                sDao.update(stockToEdit);
+            } else {
+                Produit p = new Produit(0, txtNom.getText(), Double.parseDouble(txtPrix.getText()), spinSeuil.getValue());
+                int prodId = pDao.register(p);
+                if (prodId != -1) {
+                    Stock newStock = new Stock(p, spinStock.getValue());
+                    sDao.register(newStock);
+                }
+            }
+            DataService.refreshStocks();
+        } catch (SQLException e) {
+            afficherErreur("DB error: " + e.getMessage());
+            e.printStackTrace();
         }
 
         fermerFenetre();

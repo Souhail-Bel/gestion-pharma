@@ -1,10 +1,15 @@
 package application.views;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
+import application.dao.StockDAO;
 import application.modeles.Stock;
+import application.resources.DatabaseConnection;
 import application.services.DataService;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -36,6 +41,7 @@ public class StockController {
     @FXML private Label lblPageInfo;
     @FXML private TextField searchField;
     
+    private ObservableList<Stock> stockData;
     private FilteredList<Stock> filteredData;
     private SortedList<Stock> sortedData;
     
@@ -47,7 +53,10 @@ public class StockController {
     public void initialize() {
     	setupTableColumns();
     	
-    	filteredData = new FilteredList<>(DataService.getStockGlobal(), p -> true);
+    	//filteredData = new FilteredList<>(DataService.getStockGlobal(), p -> true);
+    	
+    	stockData = DataService.getStockGlobal();
+    	filteredData = new FilteredList<>(stockData, p -> true);
     	
     	// fonction rechercher
     	searchField.textProperty().addListener(
@@ -168,6 +177,15 @@ public class StockController {
     		stage.setScene(new Scene(root));
     		stage.showAndWait();
     		
+    		try {
+    		    DataService.refreshStocks();
+    		    miseAJourTable();
+    		} catch (SQLException e) {
+    		    e.printStackTrace();
+    		    Alert alert = new Alert(Alert.AlertType.ERROR, "DB error: " + e.getMessage());
+    		    alert.show();
+    		}
+    		
     		tableStock.refresh();
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -189,6 +207,15 @@ public class StockController {
     		stage.initStyle(StageStyle.UNDECORATED);
     		stage.setScene(new Scene(root));
     		stage.showAndWait();
+    		
+    		try {
+    		    DataService.refreshStocks();
+    		    miseAJourTable();
+    		} catch (SQLException e) {
+    		    e.printStackTrace();
+    		    Alert alert = new Alert(Alert.AlertType.ERROR, "DB error: " + e.getMessage());
+    		    alert.show();
+    		}
     		
     		tableStock.refresh();
     	} catch (Exception e) {

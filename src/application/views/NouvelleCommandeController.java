@@ -1,11 +1,18 @@
 package application.views;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+import application.dao.CommandeFournisseurDAO;
+import application.dao.FournisseurDAO;
+import application.dao.StockDAO;
 import application.modeles.CommandeFournisseur;
 import application.modeles.Fournisseur;
 import application.modeles.LigneCommandeFournisseur;
+import application.modeles.StatutCommande;
 import application.modeles.Stock;
+import application.resources.DatabaseConnection;
 import application.services.DataService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -31,6 +38,7 @@ public class NouvelleCommandeController {
     
     @FXML private TableColumn<LigneCommandeFournisseur, String> colPanierNom;
     @FXML private TableColumn<LigneCommandeFournisseur, Integer> colPanierQte;
+    @FXML private TableColumn<LigneCommandeFournisseur, Double> colPanierPrix;=
     @FXML private TableColumn<LigneCommandeFournisseur, Void> colAction;
 
     @FXML private ComboBox<Fournisseur> comboFournisseur;
@@ -41,22 +49,27 @@ public class NouvelleCommandeController {
     @FXML private TableView<LigneCommandeFournisseur> tablePanier;
 
     @FXML private TextField txtQte;
+    @FXML private TextField txtPrixAchat; // Add this field to FXML for prixAchat input
     @FXML private TextField txtSearchProduit;
 
     private ObservableList<LigneCommandeFournisseur> panierList = FXCollections.observableArrayList();
-    private CommandeFournisseur currCommande = null;
+    private CommandeFournisseur currCmd = null;
+    private boolean editMode = false;
+    
+    private FilteredList<Stock> filteredData;
+    private ObservableList<Stock> stockData;
     
     @FXML
     public void initialize() {
-    	comboFournisseur.setItems(DataService.getFournisseurs());
     	
+    	stockData = DataService.getStockGlobal();
+    	filteredData = new FilteredList<>(stockData, p -> true);
     	
-    	FilteredList<Stock> filteredData = new FilteredList<>(DataService.getStockGlobal(), p -> true);
     	tableCatalogue.setItems(filteredData);
     	colCatNom.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduit().getNom()));
         colCatStock.setCellValueFactory(new PropertyValueFactory<>("quantiteDisponible"));
 
-        // rechercher les produits
+        // fonction rechercher
         txtSearchProduit.textProperty().addListener((obs, oldVal, newVal) -> {
             filteredData.setPredicate(stock -> {
                 if (newVal == null || newVal.isEmpty()) return true;
@@ -68,14 +81,16 @@ public class NouvelleCommandeController {
         tablePanier.setItems(panierList);
         colPanierNom.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduit().getNom()));
         colPanierQte.setCellValueFactory(new PropertyValueFactory<>("quantite"));
-        
+        colPanierPrix.setCellValueFactory(new PropertyValueFactory<>("prixAchat")); // Add column in FXML if needed
         
         setupSupprimerButton();
     	
+    	comboFournisseur.setItems(DataService.getFournisseurs());
     }
     
-    public void setCurrCommande(CommandeFournisseur cmd) {
-    	this.currCommande = cmd;
+    public void setCommandeData(CommandeFournisseur cmd) {
+    	editMode = true;
+    	currCmd = cmd;
     	
     	lblTitle.setText("Modifier Commande #" + cmd.getId());
     	comboFournisseur.setValue(cmd.getFournisseur());
@@ -92,7 +107,8 @@ public class NouvelleCommandeController {
 
         try {
         	int qte = Integer.parseInt(txtQte.getText());
-            if (qte <= 0) throw new NumberFormatException();
+            double prixAchat = Double.parseDouble(txtPrixAchat.getText());
+            if (qte <= 0 || prixAchat < 0) throw new NumberFormatException();
 
             LigneCommandeFournisseur existingLine = null;
             for (LigneCommandeFournisseur line : panierList) {
@@ -106,15 +122,15 @@ public class NouvelleCommandeController {
                 panierList.remove(existingLine);
             
             LigneCommandeFournisseur newLine = new LigneCommandeFournisseur(
-                    0,  currCommande, 
+                    0, null, 
                     selectedStock.getProduit(), 
-                    qte, 0.0
+                    qte, prixAchat
                 );
             
             panierList.add(newLine);
 
         } catch (NumberFormatException e) {
-            new Alert(Alert.AlertType.ERROR, "Quantité invalide").show();
+            new Alert(Alert.AlertType.ERROR, "Quantité ou prix invalide").show();
         }
     }
 
@@ -125,35 +141,45 @@ public class NouvelleCommandeController {
             return;
         }
 
-        if (currCommande == null) {
-            int newId = DataService.getCommandesFournisseur().size() + 1;
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            CommandeFournisseurDAO cfDao = new CommandeFournisseurDAO(conn);
             Fournisseur fournisseur = comboFournisseur.getValue();
-            LocalDateTime date = LocalDateTime.now();
-            String statutStr = "CREATED";
-            CommandeFournisseur newCmd = new CommandeFournisseur(newId, fournisseur, date, statutStr);
 
-            newCmd.getLignes().addAll(panierList);
-            
-            for (LigneCommandeFournisseur ligne : panierList) {
-                ligne.setCommande(newCmd);
-           }
-            
-            DataService.getCommandesFournisseur().add(newCmd);
-
-        } else {
-            currCommande.getLignes().clear();
-            currCommande.getLignes().addAll(panierList);
-            
-            for (LigneCommandeFournisseur ligne : panierList) {
-                ligne.setCommande(currCommande);
-           }
-            
-            if ("CREATED".equals(currCommande.getStatut().toString())) {
-                currCommande.setStatut(application.modeles.StatutCommande.MODIFIED);
+            if (editMode) {
+                currCmd.setFournisseur(fournisseur);
+                currCmd.getLignes().clear();
+                currCmd.getLignes().addAll(panierList);
+                if (currCmd.getStatut() == StatutCommande.CREATED) {
+                    currCmd.setStatut(StatutCommande.MODIFIED);
+                }
+                cfDao.update(currCmd);
+                
+                // If received, update stock (add UI for status change if needed, assume here or separate button)
+                if (currCmd.getStatut() == StatutCommande.RECEIVED) {
+                    StockDAO sDao = new StockDAO(conn);
+                    for (LigneCommandeFournisseur lc : currCmd.getLignes()) {
+                        Stock stock = sDao.findById(lc.getProduit().getId());
+                        if (stock != null) {
+                            stock.setQuantiteDisponible(stock.getQuantiteDisponible() + lc.getQuantite());
+                            sDao.update(stock);
+                        } else {
+                            sDao.register(new Stock(lc.getProduit().getId(), lc.getQuantite(), conn));
+                        }
+                    }
+                    DataService.refreshStocks();
+                }
+            } else {
+                CommandeFournisseur newCmd = new CommandeFournisseur(0, fournisseur, LocalDateTime.now(), "CREATED");
+                newCmd.getLignes().addAll(panierList);
+                cfDao.save(newCmd);
             }
+            
+            DataService.refreshCommandesFournisseur();
+            fermerFenetre();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Erreur DB: " + e.getMessage()).show();
         }
-
-        fermerFenetre();
     }
 
     @FXML

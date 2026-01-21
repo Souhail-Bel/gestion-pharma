@@ -5,17 +5,20 @@ import application.services.reports.PerformanceFournissuers;
 import java.sql.Connection;
 import java.util.ArrayList;
 
-public class lignecommandefournisseurDAO {
+public class LigneCommandeFournisseurDAO {
     private Connection connection;
-    public lignecommandefournisseurDAO(Connection connection) {
+    public LigneCommandeFournisseurDAO(Connection connection) {
         this.connection = connection;
     }
+    
+    
+    
     public ArrayList<PerformanceFournissuers> FournisseursWork() {
-        String querry = "SELECT fournisseur.id,COUNT(LigneCommandeFournisseur.commande_id) AS total_commandes,SUM(LigneCommandeFournisseur.prix_achat * LigneCommandeFournisseur.quantite) AS total_achats " +
-                "FROM fournisseur " +
-                "JOIN commande_fournisseur ON fournisseur.id = commande_fournisseur.fournisseur_id " +
-                "JOIN LigneCommandeFournisseur ON commande_fournisseur.id = LigneCommandeFournisseur.commande_id " +
-                "GROUP BY fournisseur.id " +
+        String querry = "SELECT FOURNISSEUR.id,COUNT(LIGNE_COMMANDE_FOURNISSEUR.commande_id) AS total_commandes,SUM(LIGNE_COMMANDE_FOURNISSEUR.prixAchat * LIGNE_COMMANDE_FOURNISSEUR.quantite) AS total_achats " +
+                "FROM FOURNISSEUR " +
+                "JOIN COMMANDE_FOURNISSEUR ON FOURNISSEUR.id = COMMANDE_FOURNISSEUR.fournisseur_id " +
+                "JOIN LIGNE_COMMANDE_FOURNISSEUR ON COMMANDE_FOURNISSEUR.id = LIGNE_COMMANDE_FOURNISSEUR.commande_id " +
+                "GROUP BY FOURNISSEUR.id " +
                 "ORDER BY total_achats DESC;";
         ArrayList<PerformanceFournissuers> p = new ArrayList<>();
         try (var stmt = connection.createStatement();

@@ -1,9 +1,10 @@
 package application.views;
 
-import application.dao.clientDAO;
-import application.dao.stockDAO;
-import application.dao.venteDAO;
+import application.dao.ClientDAO;
+import application.dao.StockDAO;
+import application.dao.VenteDAO;
 import application.modeles.*;
+import application.resources.DatabaseConnection;
 import application.services.DataService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -19,8 +20,6 @@ import javafx.util.StringConverter;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Optional;
 
 public class VenteController {
 
@@ -78,7 +77,9 @@ public class VenteController {
 
 
         TextField txtNom = new TextField(); 
-        txtNom.setPromptText("Nom & Prénom");
+        txtNom.setPromptText("Nom");
+        TextField txtPrenom = new TextField(); 
+        txtPrenom.setPromptText("Prénom");
         
         TextField txtTel = new TextField(); 
         txtTel.setPromptText("Téléphone (8 chiffres)");
@@ -92,9 +93,11 @@ public class VenteController {
         
         grid.add(new Label("Nom :"), 0, 0); 
         grid.add(txtNom, 1, 0);
-        grid.add(new Label("Tél :"), 0, 1); 
-        grid.add(txtTel, 1, 1);
-        grid.add(lblError, 1, 2);
+        grid.add(new Label("Prénom :"), 0, 1); 
+        grid.add(txtPrenom, 1, 1);
+        grid.add(new Label("Tél :"), 0, 2); 
+        grid.add(txtTel, 1, 2);
+        grid.add(lblError, 1, 3);
         
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -104,16 +107,18 @@ public class VenteController {
         
         btnOk.addEventFilter(ActionEvent.ACTION, ae -> {
             String name = txtNom.getText().trim();
+            String prenom = txtPrenom.getText().trim();
             String phone = txtTel.getText().trim();
             
             txtNom.setStyle("");
+            txtPrenom.setStyle("");
             txtTel.setStyle("");
             lblError.setText("");
 
-            // verifier nom
-            if (name.isEmpty()) {
+            // verifier nom et prenom
+            if (name.isEmpty() || prenom.isEmpty()) {
                 txtNom.setStyle("-fx-border-color: red;");
-                lblError.setText("Le nom est obligatoire.");
+                lblError.setText("Le nom et le prénom sont obligatoires.");
                 ae.consume();
                 return;
             }
@@ -131,22 +136,19 @@ public class VenteController {
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
                 int nextId = DataService.getClients().stream().mapToInt(Client::getId).max().orElse(0) + 1;
-                return new Client(nextId, txtNom.getText().trim(), "", txtTel.getText().trim());
+                return new Client(nextId, txtNom.getText().trim(), txtPrenom.getText().trim(), txtTel.getText().trim());
             }
             return null;
         });
 
         dialog.showAndWait().ifPresent(tempClient -> {
             try {
-                // 1. SAVE TO DB
-                clientDAO dao = new clientDAO(application.resources.DatabaseConnection.getConnection());
-                int newId = dao.save(tempClient);
+                ClientDAO cDao = new ClientDAO(DatabaseConnection.getConnection());
+                int newId = cDao.taille() + 1;
                 
-                // 2. UPDATE OBJECT WITH REAL ID
-                Client realClient = new Client(newId, tempClient.getNom(), "", tempClient.getTelephone());
+                Client realClient = new Client(newId, tempClient.getNom(), tempClient.getPrenom(), tempClient.getTelephone());
                 
-                // 3. ADD TO MEMORY
-                DataService.getClients().add(realClient);
+                cDao.save(realClient);
                 cmbClient.setValue(realClient);
                 
             } catch (SQLException e) {
@@ -258,19 +260,22 @@ public class VenteController {
             }
 
 
-            venteDAO vDao = new venteDAO(application.resources.DatabaseConnection.getConnection());
+            VenteDAO vDao = new VenteDAO(application.resources.DatabaseConnection.getConnection());
             vDao.save(vente);
             
 
             DataService.getHistoriqueVentes().setAll(vDao.getAllVentes());
 
 
-            stockDAO sDao = new application.dao.stockDAO(application.resources.DatabaseConnection.getConnection());
+            StockDAO sDao = new application.dao.StockDAO(application.resources.DatabaseConnection.getConnection());
             DataService.getStockGlobal().setAll(sDao.getAllStocks());
             
 
             panier.clear();
             updateTotal();
+            
+            DataService.refreshStocks();
+            DataService.refreshVentes();
             
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Vente validée et sauvegardée !");
             alert.show();

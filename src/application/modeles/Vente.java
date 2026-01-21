@@ -1,6 +1,6 @@
 package application.modeles;
-import application.dao.employeeDAO;
-import application.dao.clientDAO;
+import application.dao.EmployeeDAO;
+import application.dao.ClientDAO;
 import application.resources.DatabaseConnection;
 
 import java.sql.SQLException;
@@ -15,14 +15,14 @@ public class Vente {
     private Employe Employe;
     private double total;
     private List<LigneVente> lignes = new ArrayList<>();
-    private clientDAO cdao = new clientDAO(DatabaseConnection.getConnection());
-    private employeeDAO edao = new employeeDAO(DatabaseConnection.getConnection());
+    private ClientDAO cdao = new ClientDAO(DatabaseConnection.getConnection());
+    private EmployeeDAO edao = new EmployeeDAO(DatabaseConnection.getConnection());
     public Vente(int id, LocalDateTime date,int ClientID,int EmployeID , double total) throws SQLException {
 
         this.id = id;
         this.date = date;
-        this.Client = cdao.FindByID(ClientID);
-        this.Employe = edao.FindByID(EmployeID);
+        this.Client = cdao.findById(ClientID);
+        this.Employe = edao.findById(EmployeID);
         this.total = total;
     }
 

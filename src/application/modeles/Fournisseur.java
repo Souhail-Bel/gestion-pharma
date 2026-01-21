@@ -21,6 +21,12 @@ public class Fournisseur {
 	public String getEmail() {return email;}
 	public String getAdresse() {return adresse;}
 	
+
+	public void setNom(String nom) {this.nom = nom;}
+	public void setTelephone(String telephone) {this.telephone = telephone;}
+	public void setEmail(String email) {this.email = email;}
+	public void setAdresse(String adresse) {this.adresse = adresse;}
+	
 	@Override
 	public String toString() {
 		return nom;

@@ -33,17 +33,17 @@ public class CommandeFournisseur {
 	public List<LigneCommandeFournisseur> getLignes() {return lignes;}
 	
 	public double getTotal() {
-		if (lignes == null || lignes.isEmpty()) return 0.0;
-		
-		double somme = 0.0;
-		for(LigneCommandeFournisseur lc : this.lignes)
-			somme += lc.getQuantite() + lc.getPrixAchat();
-		
-		return somme;
+	    if (lignes == null || lignes.isEmpty())
+	    	return 0.0;
+	    
+	    double somme = 0.0;
+	    for(LigneCommandeFournisseur lc : this.lignes)
+	        somme += lc.getQuantite() * lc.getPrixAchat();
+	    
+	    return somme;
 	}
 	
-	public void setStatut(StatutCommande statut) {
-		this.statut = statut;
-	}
+	public void setStatut(StatutCommande statut) { this.statut = statut; }
+	public void setFournisseur(Fournisseur fournisseur) {this.fournisseur = fournisseur;}
 
 }

@@ -7,7 +7,7 @@ public class DatabaseConnection {
 
     // Database name can be provided via system property "db.name" or falls back to "gestion_pharma"
     private static final String DB_NAME = System.getProperty("db.name", "gestion_pharma");
-    private static final String URL = "jdbc:mysql://127.0.0.1:3306/" + DB_NAME + "?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true";
+    private static final String URL = "jdbc:mysql://localhost:3306/pharmacie";
     private static final String USER = "root";
     private static final String PASSWORD = "Konoyaro225*";
 

@@ -1,11 +1,17 @@
 package application.modeles;
 
+import application.dao.produitDAO;
+import application.resources.DatabaseConnection;
+
+import java.sql.SQLException;
+
 public class Stock {
 	private Produit produit;
 	private int quantiteDisponible;
-	
-	public Stock(Produit produit, int quantiteDisponible) {
-		this.produit = produit;
+	produitDAO pdao = new produitDAO(DatabaseConnection.getConnection());
+
+	public Stock(int ProduitID, int quantiteDisponible) throws SQLException {
+		this.produit = pdao.FindByID(ProduitID);
 		this.quantiteDisponible = quantiteDisponible;
 	}
 	

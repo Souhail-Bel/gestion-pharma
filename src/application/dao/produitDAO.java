@@ -33,7 +33,6 @@ public class produitDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
     public void updateDB(Produit p){
         String query="UPDATE PRODUIT SET (prixnente=?,seuilminimal=?) WHERE produit_id=?;";

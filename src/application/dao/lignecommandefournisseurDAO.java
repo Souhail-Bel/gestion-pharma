@@ -11,11 +11,11 @@ public class lignecommandefournisseurDAO {
         this.connection = connection;
     }
     public ArrayList<PerformanceFournissuers> FournisseursWork() {
-        String querry = "SELECT fournisseur.id,COUNT(LigneCommandeFournisseur.commande_id) AS total_commandes,SUM(LigneCommandeFournisseur.prix_achat * LigneCommandeFournisseur.quantite) AS total_achats " +
-                "FROM fournisseur " +
-                "JOIN commande_fournisseur ON fournisseur.id = commande_fournisseur.fournisseur_id " +
-                "JOIN LigneCommandeFournisseur ON commande_fournisseur.id = LigneCommandeFournisseur.commande_id " +
-                "GROUP BY fournisseur.id " +
+        String querry = "SELECT FOURNISSEUR.id,COUNT(DISTINCT LIGNECOMMANDEFOURNISSEUR.commande_id) AS total_commandes,SUM(LIGNECOMMANDEFOURNISSEUR.prix_achat * LIGNECOMMANDEFOURNISSEUR.quantite) AS total_achats " +
+                "FROM FOURNISSEUR" +
+                "JOIN COMMANDEFOURNISSEUR ON FOURNISSEUR.id = COMMANDEFOURNISSEUR.fournisseur_id " +
+                "JOIN LIGNECOMMANDEFOURNISSEUR ON COMMANDEFOURNISSEUR.id = LIGNECOMMANDEFOURNISSEUR.commande_id " +
+                "GROUP BY FOURNISSEUR.id " +
                 "ORDER BY total_achats DESC;";
         ArrayList<PerformanceFournissuers> p = new ArrayList<>();
         try (var stmt = connection.createStatement();

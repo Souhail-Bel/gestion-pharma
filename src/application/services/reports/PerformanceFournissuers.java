@@ -16,6 +16,12 @@ public class PerformanceFournissuers {
         this.totalOrders = totalOrders;
         this.totalAmount = totalAmount;
     }
+    public PerformanceFournissuers(int fournisseurId, String nom, int totalOrders, double totalAmount) {
+        this.fournisseurId = fournisseurId;
+        this.fournisseurNom = nom;
+        this.totalOrders = totalOrders;
+        this.totalAmount = totalAmount;
+    }
     public ArrayList<PerformanceFournissuers> getPerformanceData() throws SQLException {
         LigneCommandeFournisseurDAO fdao = new LigneCommandeFournisseurDAO(DatabaseConnection.getConnection());
         return fdao.FournisseursWork();

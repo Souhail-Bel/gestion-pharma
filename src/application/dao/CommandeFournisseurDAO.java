@@ -35,11 +35,26 @@ public class CommandeFournisseurDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Produit p = new Produit(rs.getInt("p_id"), rs.getString("nom"), rs.getDouble("prixVente"), rs.getInt("seuilMinimal"));
-                LigneCommandeFournisseur lc = new LigneCommandeFournisseur(rs.getInt("id"), null, p, rs.getInt("quantite"), rs.getDouble("prixAchat"));
+                LigneCommandeFournisseur lc = new LigneCommandeFournisseur(null, p, rs.getInt("quantite"), rs.getDouble("prixAchat"));
                 lignes.add(lc);
             }
         }
         return lignes;
+    }
+    
+    public int taille(){
+        String query="SELECT COUNT(id) FROM COMMANDE_FOURNISSEUR";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public int save(CommandeFournisseur cmd) throws SQLException {
@@ -81,7 +96,7 @@ public class CommandeFournisseurDAO {
             stmt.setInt(3, cmd.getId());
             stmt.executeUpdate();
         }
-        // Delete old lines, save new
+
         String deleteLines = "DELETE FROM LIGNE_COMMANDE_FOURNISSEUR WHERE commande_id=?";
         try (PreparedStatement stmt = connection.prepareStatement(deleteLines)) {
             stmt.setInt(1, cmd.getId());

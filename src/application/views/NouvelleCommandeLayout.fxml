@@ -1,112 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" prefHeight="500.0" prefWidth="800.0" fx:controller="application.views.NouvelleCommandeController">
+
+<BorderPane prefHeight="520.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.NouvelleCommandeController"
+            style="-fx-background-color: #F4F7F6;">
+
   <top>
     <VBox>
-      <children>
-        <Label fx:id="lblTitle" text="Nouvelle Commande" style="-fx-font-size: 18px; -fx-font-weight: bold;">
-          <padding>
-            <Insets bottom="10.0" left="20.0"/>
-          </padding>
-        </Label>
-        <Separator/>
-        <HBox alignment="CENTER_LEFT" spacing="10.0">
-          <children>
-            <Label text="Fournisseur :"/>
-            <ComboBox fx:id="comboFournisseur" prefWidth="200.0"/>
-          </children>
-          <padding>
-            <Insets bottom="10.0" left="20.0" top="10.0"/>
-          </padding>
-        </HBox>
-      </children>
+      <Label fx:id="lblTitle" text="Nouvelle Commande Fournisseur" textFill="#00796B"
+             style="-fx-font-size: 22px; -fx-font-weight: bold;">
+        <padding><Insets bottom="10.0" left="20.0" top="15.0"/></padding>
+      </Label>
+      <Separator/>
+      <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 15 20;">
+        <Label text="Fournisseur :" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="comboFournisseur" prefWidth="320.0"/>
+      </HBox>
     </VBox>
   </top>
+
   <center>
-    <HBox>
-      <children>
-        <VBox HBox.hgrow="ALWAYS">
-          <children>
-            <Label text="Catalogue Produits" style="-fx-font-weight: bold;">
-              <padding>
-                <Insets bottom="5.0"/>
-              </padding>
-            </Label>
-            <TextField fx:id="txtSearchProduit" promptText="Rechercher un produit..."/>
-            <TableView fx:id="tableCatalogue" prefHeight="300.0">
-              <columns>
-                <TableColumn fx:id="colCatNom" prefWidth="200.0" text="Nom"/>
-                <TableColumn fx:id="colCatStock" prefWidth="100.0" text="Stock Disponible"/>
-              </columns>
-            </TableView>
-            <Separator>
-              <padding>
-                <Insets top="10.0"/>
-              </padding>
-            </Separator>
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-              <children>
-                <Label text="Quantité :"/>
-                <TextField fx:id="txtQte" prefWidth="50.0"/>
-                <Label text="Prix Achat :"/>
-                <TextField fx:id="txtPrixAchat" prefWidth="80.0" promptText="0.0"/>
-                <Button mnemonicParsing="false" onAction="#handleAjouterLigne" text="Ajouter"/>
-              </children>
-              <padding>
-                <Insets top="10.0"/>
-              </padding>
-            </HBox>
-          </children>
-          <padding>
-            <Insets left="20.0" right="10.0"/>
-          </padding>
-        </VBox>
-        <VBox HBox.hgrow="ALWAYS">
-          <children>
-            <Label text="Panier" style="-fx-font-weight: bold;">
-              <padding>
-                <Insets bottom="5.0"/>
-              </padding>
-            </Label>
-            <TableView fx:id="tablePanier" prefHeight="300.0">
-              <columns>
-                <TableColumn fx:id="colPanierNom" prefWidth="200.0" text="Nom"/>
-                <TableColumn fx:id="colPanierQte" prefWidth="100.0" text="Quantité"/>
-                <TableColumn fx:id="colPanierPrix" prefWidth="100.0" text="Prix Achat"/>
-                <TableColumn fx:id="colAction" prefWidth="50.0" text=""/>
-              </columns>
-            </TableView>
-            <Separator>
-              <padding>
-                <Insets top="10.0"/>
-              </padding>
-            </Separator>
-            <HBox alignment="CENTER_RIGHT" spacing="10.0">
-              <children>
-                <Button mnemonicParsing="false" onAction="#handleAnnuler" text="Annuler"/>
-                <Button mnemonicParsing="false" onAction="#handleValider" style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;" text="Valider"/>
-              </children>
-              <padding>
-                <Insets top="10.0"/>
-              </padding>
-            </HBox>
-          </children>
-          <padding>
-            <Insets left="10.0" right="20.0"/>
-          </padding>
-        </VBox>
-      </children>
+    <HBox spacing="25.0" style="-fx-padding: 0 20 20 20;">
+      <!-- Catalogue -->
+      <VBox HBox.hgrow="ALWAYS" spacing="12.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #E0E0E0; -fx-border-radius: 8;">
+        <Label text="Catalogue Produits" style="-fx-font-weight: bold; -fx-font-size: 15px;"/>
+        <TextField fx:id="txtSearchProduit" promptText="Rechercher un produit…"/>
+        <TableView fx:id="tableCatalogue" prefHeight="280.0">
+          <columns>
+            <TableColumn fx:id="colCatNom" text="Produit" prefWidth="220.0"/>
+            <TableColumn fx:id="colCatStock" text="Stock" prefWidth="90.0"/>
+          </columns>
+        </TableView>
+
+        <HBox spacing="12.0" alignment="CENTER_LEFT">
+          <Label text="Qté :" minWidth="50.0"/>
+          <TextField fx:id="txtQte" prefWidth="80.0" promptText="1"/>
+          <Label text="Prix achat :" minWidth="80.0"/>
+          <TextField fx:id="txtPrixAchat" prefWidth="100.0" promptText="0.00"/>
+          <Button fx:id="btnAjouter" onAction="#handleAjouterLigne" text="Ajouter"
+                  style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        </HBox>
+      </VBox>
+
+      <!-- Panier -->
+      <VBox HBox.hgrow="ALWAYS" spacing="12.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #E0E0E0; -fx-border-radius: 8;">
+        <Label text="Panier" style="-fx-font-weight: bold; -fx-font-size: 15px;"/>
+        <TableView fx:id="tablePanier" prefHeight="280.0">
+          <columns>
+            <TableColumn fx:id="colPanierNom" text="Produit" prefWidth="220.0"/>
+            <TableColumn fx:id="colPanierQte" text="Qté" prefWidth="80.0"/>
+            <TableColumn fx:id="colPanierPrix" text="Prix Achat" prefWidth="100.0"/>
+            <TableColumn fx:id="colAction" text="" prefWidth="60.0"/>
+          </columns>
+        </TableView>
+
+        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+          <Button onAction="#handleAnnuler" text="Annuler"/>
+          <Button onAction="#handleValider" text="Valider Commande"
+                  style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        </HBox>
+      </VBox>
     </HBox>
   </center>
 </BorderPane>

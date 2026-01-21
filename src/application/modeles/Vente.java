@@ -36,7 +36,6 @@ public class Vente {
 
     public void addLigne(LigneVente ligne) {
         lignes.add(ligne);
-        total += ligne.getSousTotal();
     }
     public int getId() {return id;}
     public LocalDateTime getDate() { return date; }

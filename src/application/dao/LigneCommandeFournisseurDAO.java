@@ -14,7 +14,7 @@ public class LigneCommandeFournisseurDAO {
     
     
     public ArrayList<PerformanceFournissuers> FournisseursWork() {
-        String querry = "SELECT FOURNISSEUR.id,COUNT(LIGNE_COMMANDE_FOURNISSEUR.commande_id) AS total_commandes,SUM(LIGNE_COMMANDE_FOURNISSEUR.prixAchat * LIGNE_COMMANDE_FOURNISSEUR.quantite) AS total_achats " +
+        String querry = "SELECT FOURNISSEUR.id, FOURNISSEUR.nom, COUNT(LIGNE_COMMANDE_FOURNISSEUR.commande_id) AS total_commandes, SUM(LIGNE_COMMANDE_FOURNISSEUR.prixAchat * LIGNE_COMMANDE_FOURNISSEUR.quantite) AS total_achats " +
                 "FROM FOURNISSEUR " +
                 "JOIN COMMANDE_FOURNISSEUR ON FOURNISSEUR.id = COMMANDE_FOURNISSEUR.fournisseur_id " +
                 "JOIN LIGNE_COMMANDE_FOURNISSEUR ON COMMANDE_FOURNISSEUR.id = LIGNE_COMMANDE_FOURNISSEUR.commande_id " +
@@ -25,9 +25,10 @@ public class LigneCommandeFournisseurDAO {
              var rs = stmt.executeQuery(querry)) {
             while (rs.next()) {
                 int fournisseurId = rs.getInt("id");
+                String nom = rs.getString("nom");
                 int totalCommandes = rs.getInt("total_commandes");
                 double totalAchats = rs.getDouble("total_achats");
-                PerformanceFournissuers perf = new PerformanceFournissuers(fournisseurId, totalCommandes, totalAchats);
+                PerformanceFournissuers perf = new PerformanceFournissuers(fournisseurId, nom, totalCommandes, totalAchats);
                 p.add(perf);
             }
         } catch (Exception e) {
@@ -37,4 +38,3 @@ public class LigneCommandeFournisseurDAO {
     }
 
     }
-

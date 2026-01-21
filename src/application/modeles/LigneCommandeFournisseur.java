@@ -1,14 +1,12 @@
 package application.modeles;
 
 public class LigneCommandeFournisseur {
-	private int id;
-	private CommandeFournisseur commande; // parent
+	private CommandeFournisseur commande;
 	private Produit produit;
 	private int quantite;
 	private double prixAchat;
 	
-	public LigneCommandeFournisseur(int id, CommandeFournisseur commande, Produit produit, int quantite, double prixAchat) {
-		this.id = id;
+	public LigneCommandeFournisseur(CommandeFournisseur commande, Produit produit, int quantite, double prixAchat) {
 		this.commande = commande;
         this.produit = produit;
         this.quantite = quantite;

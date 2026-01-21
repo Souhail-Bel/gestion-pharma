@@ -249,20 +249,17 @@ public class VenteController {
 
         try {
             Client client = cmbClient.getValue();
-            if (client == null && !DataService.getClients().isEmpty()) {
+            if (client == null && !DataService.getClients().isEmpty())
                  client = DataService.getClients().get(0);
-            }
 
-
-            Vente vente = new Vente(0, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), 0.0);
-            for (LigneVente lv : panier) {
-                vente.addLigne(lv); 
-            }
-
-
-            VenteDAO vDao = new VenteDAO(application.resources.DatabaseConnection.getConnection());
-            vDao.save(vente);
             
+            VenteDAO vDao = new VenteDAO(application.resources.DatabaseConnection.getConnection());
+            int newId = vDao.taille() + 1;
+            double total = panier.stream().mapToDouble(LigneVente::getSousTotal).sum();
+            Vente vente = new Vente(newId, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), total);
+            for (LigneVente lv : panier)
+                vente.addLigne(lv);
+            vDao.save(vente);
 
             DataService.getHistoriqueVentes().setAll(vDao.getAllVentes());
 
@@ -271,8 +268,8 @@ public class VenteController {
             DataService.getStockGlobal().setAll(sDao.getAllStocks());
             
 
-            panier.clear();
             updateTotal();
+            panier.clear();
             
             DataService.refreshStocks();
             DataService.refreshVentes();

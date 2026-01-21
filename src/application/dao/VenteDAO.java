@@ -35,7 +35,7 @@ public class VenteDAO {
     }
 
     private void loadLignesForVente(Vente vente) throws SQLException {
-        String query = "SELECT lv.*, p.nom, p.prixVente " +
+        String query = "SELECT lv.*, p.nom " +
                        "FROM LIGNE_VENTE lv " +
                        "JOIN PRODUIT p ON lv.produit_id = p.id " +
                        "WHERE lv.vente_id = ?";
@@ -45,18 +45,17 @@ public class VenteDAO {
             ResultSet rs = stmt.executeQuery();
             
             while (rs.next()) {
+                double prixHistorique = rs.getDouble("prixUnitaire");
 
                 Produit p = new Produit(
                     rs.getInt("produit_id"),
                     rs.getString("nom"),
-                    rs.getDouble("prixVente"), 
-                    0
+                    prixHistorique, 0 
                 );
 
                 LigneVente ligne = new LigneVente(
                     rs.getInt("id"),
-                    vente,
-                    p,
+                    vente, p,
                     rs.getInt("quantite")
                 );
                 
@@ -79,7 +78,21 @@ public class VenteDAO {
     }
     
     
-    
+
+    public int taille(){
+        String query="SELECT COUNT(id) FROM VENTE";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
     
     public void save(Vente v) throws SQLException {
         String query = "INSERT INTO VENTE (client_id, employe_id, dateVente, total) VALUES (?, ?, ?, ?)";

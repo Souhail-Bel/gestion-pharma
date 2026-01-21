@@ -1,6 +1,5 @@
 package application.modeles;
 
-import application.modeles.CommandeFournisseur.Statut;
 
 public class Employe {
 	

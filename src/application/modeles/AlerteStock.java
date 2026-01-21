@@ -2,8 +2,6 @@ package application.modeles;
 
 import java.time.LocalDate;
 
-import application.modeles.CommandeFournisseur.Statut;
-
 public class AlerteStock {
 	
 	public enum Etat {

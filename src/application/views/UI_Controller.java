@@ -10,12 +10,14 @@ import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-
+import javafx.geometry.Pos;
 import javafx.animation.*;
-
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class UI_Controller {
@@ -25,21 +27,26 @@ public class UI_Controller {
 	public static void setUtilisateur(Employe usr) {
 		currUtilisateur = usr;
 	}
+	
+	public static Employe getUtilisateur() {
+		return currUtilisateur;
+	}
 
 	
 	@FXML private VBox sidebar;
 	@FXML private Pane dimmer;
 	@FXML private Label lblTitle;
+	@FXML private Label lblWelcome;
 	
-	private final double COLLAPSED_WIDTH = 60.0;
+	private final double COLLAPSED_WIDTH = 75.0;
 	private final double EXPANDED_WIDTH = 220.0;
 	
-    @FXML private Button btnAdmin;
     @FXML private Button btnDashboard;
     @FXML private Button btnFournisseurs;
     @FXML private Button btnLogout;
     @FXML private Button btnStock;
     @FXML private Button btnVente;
+    @FXML private Button btnHistorique;
     @FXML private StackPane contentArea;
     @FXML private BorderPane mainBorderPane;
 
@@ -47,8 +54,30 @@ public class UI_Controller {
     
     @FXML
     public void initialize() {
+    	
+    	if(currUtilisateur != null) {
+    		lblWelcome.setText("@" + currUtilisateur.getUsername());
+
+            Label warmwelcome = new Label("Bonjour, " + currUtilisateur.getNom());
+            warmwelcome.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
+            contentArea.getChildren().add(warmwelcome);
+        }
+    	
     	sidebar.setPrefWidth(COLLAPSED_WIDTH);
     	lblTitle.setVisible(false);
+    	
+    	javafx.application.Platform.runLater(() -> {
+            sidebar.setPrefWidth(COLLAPSED_WIDTH);
+            lblTitle.setVisible(false);
+            
+            for (Node node : sidebar.getChildren()) {
+                if (node instanceof Button) {
+                	Button btn = (Button) node;
+                    btn.setContentDisplay(ContentDisplay.GRAPHIC_ONLY); 
+                    btn.setAlignment(Pos.CENTER);
+                }
+            }
+        });
     	
     	sidebar.setOnMouseEntered(e -> {
     		expandSidebar();
@@ -71,6 +100,14 @@ public class UI_Controller {
     	ft.play();
     	
     	lblTitle.setVisible(true);
+    	
+    	for (Node node : sidebar.getChildren()) {
+            if (node instanceof Button) {
+                Button btn = (Button) node;
+                btn.setContentDisplay(ContentDisplay.LEFT); //icones + texte
+                btn.setAlignment(Pos.CENTER_LEFT);
+            }
+        }
     }
     
     private void collapseSidebar() {
@@ -87,6 +124,14 @@ public class UI_Controller {
     	ft.play();
     	
     	lblTitle.setVisible(false);
+    	
+    	for (Node node : sidebar.getChildren()) {
+            if (node instanceof Button) {
+                Button btn = (Button) node;
+                btn.setContentDisplay(ContentDisplay.GRAPHIC_ONLY); //icones
+                btn.setAlignment(Pos.CENTER);
+            }
+        }
     }
     
     private void animateSidebar(double newWidth) {
@@ -101,20 +146,33 @@ public class UI_Controller {
     @FXML
     void handleLogout(ActionEvent event) {
     	System.out.println("Logging out...");
+    	
+    	try {
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginLayout.fxml"));
+    		Parent root = loader.load();
+    		
+    		Stage stage = (Stage) btnLogout.getScene().getWindow();
+    		
+    		Scene scene = new Scene(root);
+    		scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+    		
+    		stage.setScene(scene);
+    		stage.centerOnScreen();
+    		stage.show();
+    		
+    		setUtilisateur(null);
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
     }
 
     @FXML
-    void handleShowAdmin(ActionEvent event) throws AccesRefuseException {
+    void handleShowDashboard(ActionEvent event) throws AccesRefuseException {
     	if(currUtilisateur != null && currUtilisateur.estAdmin()) {
     		loadView("AdminLayout.fxml");
     	} else {
     		throw new AccesRefuseException(currUtilisateur.getUsername() + "n'est pas Admin!");
     	}
-    }
-
-    @FXML
-    void handleShowDashboard(ActionEvent event) {
-    	loadView("DashboardLayout.fxml");
     }
 
     @FXML
@@ -130,6 +188,11 @@ public class UI_Controller {
     @FXML
     void handleShowVente(ActionEvent event) {
     	loadView("VenteLayout.fxml");
+    }
+    
+    @FXML
+    void handleShowHistorique(ActionEvent event) {
+    	loadView("HistoriqueLayout.fxml");
     }
     
     private void loadView(String fxmlFile) {

@@ -10,9 +10,11 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 public class stockDAO {
     private Connection connection;
+
     public stockDAO(Connection connection) {
         this.connection = connection;
     }
+
     public ArrayList<Stock> getAllStocks() throws SQLException {
         String query = "SELECT * FROM STOCK";
         ArrayList<Stock> stocks = new ArrayList<>();
@@ -20,8 +22,8 @@ public class stockDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Stock stock = new Stock(
-                    rs.getInt("produit_id"),
-                    rs.getInt("quantiteDisponible")
+                        rs.getInt("produit_id"),
+                        rs.getInt("quantitedisponible")
                 );
                 stocks.add(stock);
             }
@@ -29,17 +31,18 @@ public class stockDAO {
         return stocks;
     }
 
-    public void Register(Stock s){
-        String query="INSERT INTO STOCK(produit_id,quantiteDisponible) VALUES(?,?);";
+    public void Register(Stock s) {
+        String query = "INSERT INTO STOCK(produit_id,quantitedisponible) VALUES(?,?);";
         try {
             if (FindByNAME(s.getProduit().getNom()) == null) {
                 PreparedStatement stmt = connection.prepareStatement(query);
                 stmt.executeQuery();
             }
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
+
     public Stock FindByNAME(String nom) throws SQLException {
         String query = "SELECT * FROM STOCK,PRODUIT WHERE nom = ? AND STOCK.produit_id=PRODUIT.id";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -55,13 +58,29 @@ public class stockDAO {
             }
         }
     }
-    public void updateStock(int id,int nouv_quantite){
-        String query="UPDATE STOCK SET (quantiteDisponible=?) WHERE produit_id=?;";
-        try{
-            PreparedStatement stmt=connection.prepareStatement(query);
-            int rows=stmt.executeUpdate();
-            if (rows==1)
+
+    public void updateStock(int id, int nouv_quantite) {
+        String query = "UPDATE STOCK SET (quantitedisponible=?) WHERE produit_id=?;";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setInt(1, nouv_quantite);
+            stmt.setInt(2, id);
+            int rows = stmt.executeUpdate();
+            if (rows == 1)
                 System.out.println("Stockage réussit");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void delete(int id) {
+        String query = "DELETE FROM STOCK WHERE produit_id=?;";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setInt(1, id);
+            int rows = stmt.executeUpdate();
+            if (rows == 1)
+                System.out.println("Supression Réussite");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

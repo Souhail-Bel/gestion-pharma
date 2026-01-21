@@ -19,7 +19,7 @@ public class Stock {
 		stockDAO sdao=new stockDAO(DatabaseConnection.getConnection());
 		sdao.Register(new Stock(produitID,quantiteDisponible));
 	}
-	public void addstock(int quantite) throws StockInsuffisantException, SQLException {
+	public void exportstock(int quantite) throws StockInsuffisantException, SQLException {
 		if(quantiteDisponible<quantite)
 			throw new StockInsuffisantException("Stock Insuffisant");
 		else{
@@ -28,6 +28,15 @@ public class Stock {
 			sdao.updateStock(produit.getId(),quantiteDisponible);
 		}
 	}
+	public void importstock(int quantite){
+		quantiteDisponible+=quantite;
+        try {
+            stockDAO sdao=new stockDAO(DatabaseConnection.getConnection());
+			sdao.updateStock(produit.getId(),quantiteDisponible);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 	public Produit getProduit() {return produit;}
 
 	public int getQuantiteDisponible() {return quantiteDisponible;}
@@ -36,5 +45,14 @@ public class Stock {
 
 	public int difference() {
 		return quantiteDisponible-produit.getSeuilMinimal();
+	}
+
+	public void deletestock(){
+		try{
+			stockDAO sdao=new stockDAO(DatabaseConnection.getConnection());
+			sdao.delete(produit.getId());
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 }

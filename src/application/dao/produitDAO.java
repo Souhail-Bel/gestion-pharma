@@ -11,7 +11,7 @@ public class produitDAO {
         this.connection = connection;
     }
     public void Register(Produit p){
-        String query="INSERT INTO PRODUIT(nom,prixVente,seuilMinimal) VALUES(?,?,?);";
+        String query="INSERT INTO PRODUIT(nom,prixvente,seuilminimal) VALUES(?,?,?);";
         try {
             if (FindByNAME(p.getNom()) == null) {
                 PreparedStatement stmt = connection.prepareStatement(query);
@@ -35,6 +35,20 @@ public class produitDAO {
         }
 
     }
+    public void updateDB(Produit p){
+        String query="UPDATE PRODUIT SET (prixnente=?,seuilminimal=?) WHERE produit_id=?;";
+        try{
+            PreparedStatement stmt=connection.prepareStatement(query);
+            stmt.setDouble(1,p.getPrixVente());
+            stmt.setInt(2,p.getSeuilMinimal());
+            stmt.setInt(3,p.getId());
+            int rows=stmt.executeUpdate();
+            if (rows==1)
+                System.out.println("Mise à jour réussite");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
     public Produit FindByNAME(String nom) throws SQLException {
         String query = "SELECT * FROM PRODUIT WHERE nom = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -44,8 +58,8 @@ public class produitDAO {
                 return new Produit(
                         rs.getInt("id"),
                         rs.getString("nom"),
-                        rs.getDouble("prixVente"),
-                        rs.getInt("seuilMinimal")
+                        rs.getDouble("prixvente"),
+                        rs.getInt("seuilminimal")
                 );
             } else {
                 return null;
@@ -61,12 +75,25 @@ public class produitDAO {
                 return new Produit(
                         rs.getInt("id"),
                         rs.getString("nom"),
-                        rs.getDouble("prixVente"),
-                        rs.getInt("seuilMinimal")
+                        rs.getDouble("prixvente"),
+                        rs.getInt("seuilminimal")
                 );
             } else {
                 return null;
             }
+        }
+    }
+
+    public void delete(int id) {
+        String query="DELETE FROM PRODUIT WHERE produit_id=?;";
+        try{
+            PreparedStatement stmt=connection.prepareStatement(query);
+            stmt.setInt(1,id);
+            int rows= stmt.executeUpdate();
+            if(rows==1)
+                System.out.println("Supression Réussite");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

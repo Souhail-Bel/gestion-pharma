@@ -1,5 +1,6 @@
 package application.views;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -170,7 +171,9 @@ public class VenteController {
     		} catch (CommandeInvalideException e) {
     			lblError.setText(e.getMessage());
     			lblError.setVisible(true);
-    		}
+    		} catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
     }
     
     

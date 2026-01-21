@@ -26,6 +26,14 @@ public class Vente {
         this.total = total;
     }
 
+    public Vente(int id,Client c, Employe e) throws SQLException {
+        this.id = id;
+        this.date = LocalDateTime.now();
+        this.Client = c;
+        this.Employe = e;
+        this.total = 0.0;
+    }
+
     public void addLigne(LigneVente ligne) {
         lignes.add(ligne);
         total += ligne.getSousTotal();

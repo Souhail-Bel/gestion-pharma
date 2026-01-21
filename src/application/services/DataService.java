@@ -23,8 +23,12 @@ public class DataService {
 	private static final ObservableList<Client> clients = FXCollections.observableArrayList();
 	
 	static {
-		initData();
-	}
+        try {
+            initData();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 	public static ObservableList<Stock> getStockGlobal() {
 		return stockGlobal;

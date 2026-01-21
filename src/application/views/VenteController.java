@@ -1,5 +1,6 @@
 package application.views;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import application.exceptions.CommandeInvalideException;
@@ -55,7 +56,6 @@ public class VenteController {
     @FXML private TableView<LigneVente> tablePanier;
     
     private ObservableList<LigneVente> panierList = FXCollections.observableArrayList();
-    private ObservableList<Client> clientList = FXCollections.observableArrayList();
     
     @FXML private TextField txtSearch;
     @FXML private TextField txtSearchClient;
@@ -66,9 +66,11 @@ public class VenteController {
     	remplirTable();
     	
     	tablePanier.setItems(panierList);
-    	comboClient.setItems(clientList);
+    	comboClient.setItems(DataService.getClients());
     	
     	//if(!clientList.isEmpty()) comboClient.getSelectionModel().select(0);
+    	if (!DataService.getClients().isEmpty())
+            comboClient.getSelectionModel().select(0);
     	
     	// ajouter un "X" pour supprimer un ligne de vente
     	colAction.setCellFactory(param -> new TableCell<>() {
@@ -132,10 +134,11 @@ public class VenteController {
     		try {
     			validerCommande();
     			
+    			int v_Id = DataService.getHistoriqueVentes().size() + 1;
     			Client c = comboClient.getValue();
     			Employe e = UI_Controller.getUtilisateur();
     			
-    			Vente vente = new Vente(c, e);
+    			Vente vente = new Vente(v_Id, c, e);
     			
     			for(LigneVente lv : panierList) {
     				vente.addLigne(lv);
@@ -235,7 +238,7 @@ public class VenteController {
     
     
     private void setupRechercheClient() {
-    	FilteredList<Client> filteredClients = new FilteredList<>(clientList, p -> true);
+    	FilteredList<Client> filteredClients = new FilteredList<>(DataService.getClients(), p -> true);
         
         comboClient.setItems(filteredClients);
 
@@ -278,8 +281,8 @@ public class VenteController {
         dialog.setTitle("Nouveau Client");
         dialog.setHeaderText("Ajouter un client...");
 
-        ButtonType confButton = new ButtonType("Ajouter", ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confButton, ButtonType.CANCEL);
+        ButtonType confButtonType = new ButtonType("Ajouter", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confButtonType, ButtonType.CANCEL);
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -291,18 +294,44 @@ public class VenteController {
         TextField phone = new TextField();
         phone.setPromptText("Téléphone");
 
+        Label lblErreurDialog = new Label();
+        lblErreurDialog.setStyle("-fx-text-fill: red;");
+        
         grid.add(new Label("Nom :"), 0, 0);
         grid.add(username, 1, 0);
         grid.add(new Label("Tél :"), 0, 1);
         grid.add(phone, 1, 1);
+        
+        grid.add(lblErreurDialog, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
-
         javafx.application.Platform.runLater(username::requestFocus);
+        
+        
+        Button btnAjouterClientDialog = (Button) dialog.getDialogPane().lookupButton(confButtonType);
+        
+        
+        btnAjouterClientDialog.addEventFilter(ActionEvent.ACTION, ae -> {
+        	String num = phone.getText();
+        	
+        	if(num == null || !num.matches("\\d{8}")) {
+        		ae.consume(); //  empecher de fermer
+        		
+        		lblErreurDialog.setText("Numéro invalide");
+        		phone.setStyle("-fx-border-color: red;");
+        	} else if (username.getText().isEmpty()) {
+        		ae.consume();
+
+        		lblErreurDialog.setText("Nom obligatoire");
+        		username.setStyle("-fx-border-color: red;");
+        	}
+        });
+        
+        
 
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == confButton) {
-                int newId = clientList.size() + 1; 
+            if (dialogButton == confButtonType) {
+                int newId = DataService.getClients().size() + 1; 
                 return new Client(newId, username.getText(), phone.getText());
             }
             return null;
@@ -311,7 +340,7 @@ public class VenteController {
         Optional<Client> result = dialog.showAndWait();
 
         result.ifPresent(newClient -> {
-            clientList.add(newClient);
+        	DataService.getClients().add(newClient);
             txtSearchClient.setText(""); 
             comboClient.getSelectionModel().select(newClient); 
         });

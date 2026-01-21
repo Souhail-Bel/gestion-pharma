@@ -2,6 +2,7 @@ package application.services;
 
 import java.text.DecimalFormat;
 
+import application.modeles.Client;
 import application.modeles.CommandeFournisseur;
 import application.modeles.Fournisseur;
 import application.modeles.Produit;
@@ -13,10 +14,12 @@ import javafx.collections.ObservableList;
 
 public class DataService {
 	private static final ObservableList<Stock> stockGlobal = FXCollections.observableArrayList();
-	private static ObservableList<Vente> historiqueVentes = FXCollections.observableArrayList();
+	private static final ObservableList<Vente> historiqueVentes = FXCollections.observableArrayList();
 	
 	private static final ObservableList<Fournisseur> fournisseurs = FXCollections.observableArrayList();
 	private static final ObservableList<CommandeFournisseur> commandesFournisseur = FXCollections.observableArrayList();
+	
+	private static final ObservableList<Client> clients = FXCollections.observableArrayList();
 	
 	static {
 		initData();
@@ -38,6 +41,10 @@ public class DataService {
 		return commandesFournisseur;
 	}
 	
+	public static ObservableList<Client> getClients() {
+		return clients;
+	}
+	
 	// (int id, String nom, double prixVente, int seuilMinimal)
 	private static void initData() {
 		for(int i=1; i < 50; i++) {
@@ -53,5 +60,7 @@ public class DataService {
 					"Avenue N°"+i);
 			fournisseurs.add(f);
 		}
+		
+		clients.add(new Client(0, "Anonyme", ""));
 	}
 }

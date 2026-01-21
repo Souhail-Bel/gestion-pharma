@@ -12,7 +12,8 @@ public class Vente {
     private double total;
     private List<LigneVente> lignes = new ArrayList<>();
 
-    public Vente(Client client, Employe employe) {
+    public Vente(int id, Client client, Employe employe) {
+    	this.id = id;
         this.date = LocalDateTime.now();
         this.client = client;
         this.employe = employe;

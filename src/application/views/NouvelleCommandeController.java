@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import application.modeles.CommandeFournisseur;
 import application.modeles.Fournisseur;
 import application.modeles.LigneCommandeFournisseur;
-import application.modeles.Produit;
 import application.modeles.Stock;
 import application.services.DataService;
 import javafx.beans.property.SimpleStringProperty;

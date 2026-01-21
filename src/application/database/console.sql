@@ -43,14 +43,15 @@ create table FOURNISSEUR(
     id INT primary key AUTO_INCREMENT,
     nom VARCHAR(100),
     telephone VARCHAR(100),
-    email VARCHAR(100)
+    email VARCHAR(100),
+    adresse VARCHAR(100)
 );
-insert into FOURNISSEUR (nom, telephone, email) values
-('PharmaSupply Co.', '123-456-7890', 'fournisseur@ieee.org');
+insert into FOURNISSEUR (nom, telephone,adresse, email) values
+('PharmaSupply Co.', '123-456-7890', 'la7bibya','fournisseur@ieee.org');
 create table COMMANDEFOURNISSEUR(
     id INT primary key AUTO_INCREMENT,
     fournisseur_id INT,
-    dateCommande DATE,
+    dateCommande DATE ,
     statut ENUM('EN_ATTENTE','RECU','ANNULE'),
     FOREIGN KEY (fournisseur_id) REFERENCES fournisseur(id)
 );
@@ -102,4 +103,4 @@ insert into LigneVente (vente_id, produit_id, quantite, prixUnitaire) values
 (1, 1, 5, 1.5),
 (1, 2, 3, 2.0),
 (2, 3, 10, 1.2);
-
+select * from COMMANDEFOURNISSEUR;

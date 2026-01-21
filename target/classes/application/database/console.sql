@@ -39,25 +39,26 @@ insert into stock (produit_id,quantiteDisponible) values
 (3, 20),
 (4, 10),
 (5, 15);
-create table fournisseur(
+create table FOURNISSEUR(
     id INT primary key AUTO_INCREMENT,
     nom VARCHAR(100),
     telephone VARCHAR(100),
-    email VARCHAR(100)
+    email VARCHAR(100),
+    adresse VARCHAR(100)
 );
-insert into fournisseur (nom, telephone, email) values
-('PharmaSupply Co.', '123-456-7890', 'fournisseur@ieee.org');
-create table CommandeFournisseur(
+insert into FOURNISSEUR (nom, telephone,adresse, email) values
+('PharmaSupply Co.', '123-456-7890', 'la7bibya','fournisseur@ieee.org');
+create table COMMANDEFOURNISSEUR(
     id INT primary key AUTO_INCREMENT,
     fournisseur_id INT,
-    dateCommande DATE,
+    dateCommande DATE ,
     statut ENUM('EN_ATTENTE','RECU','ANNULE'),
     FOREIGN KEY (fournisseur_id) REFERENCES fournisseur(id)
 );
-insert into CommandeFournisseur (id,fournisseur_id, dateCommande, statut) values
+insert into COMMANDEFOURNISSEUR (id,fournisseur_id, dateCommande, statut) values
 (0,1, '2024-06-01', 'EN_ATTENTE');
 
-create table LigneCommandeFournisseur(
+create table LIGNECOMMANDEFOURNISSEUR(
     commande_id INT,
     produit_id INT,
     quantite INT,
@@ -102,4 +103,3 @@ insert into LigneVente (vente_id, produit_id, quantite, prixUnitaire) values
 (1, 1, 5, 1.5),
 (1, 2, 3, 2.0),
 (2, 3, 10, 1.2);
-

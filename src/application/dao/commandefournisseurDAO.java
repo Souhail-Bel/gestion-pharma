@@ -3,8 +3,7 @@ package application.dao;
 import application.database.DetailCommandeFournisseur;
 import application.modeles.CommandeFournisseur;
 import application.modeles.StatutCommande;
-import application.services.reports.PerformanceFournissuers;
-
+import application.resources.DatabaseConnection;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,5 +47,47 @@ public class commandefournisseurDAO {
             throw new RuntimeException(e);
         }
     }
-
+    public void register(CommandeFournisseur comF){
+        String query="INSERT INTO COMMANDEFOURNISSEUR(fournisseur_id,statut) VALUES(?,?);";
+        try {
+            if (FindByID(comF.getId()) == null) {
+                PreparedStatement stmt = connection.prepareStatement(query);
+                stmt.setInt(1,comF.getFournisseur().getId());
+                stmt.setString(2, String.valueOf(comF.getStatut()));
+                stmt.executeQuery();
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public CommandeFournisseur FindByID(int id) throws SQLException {
+        String query = "SELECT * FROM COMMANDEFOURNISSEUR,FOURNISSEUR WHERE COMMANDEFOURNISSEUR.id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            fournisseurDAO fDao=new fournisseurDAO(DatabaseConnection.getConnection());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new CommandeFournisseur(
+                        rs.getInt("COMMANDEFOURNISSEUR.id"),
+                        fDao.FindByNAME(rs.getString("FOURNISSEUR.nom")),
+                        rs.getTimestamp("COMMANDEFOURNISSEUR.dateCommande").toLocalDateTime(),
+                        rs.getString("COMMANDEFOURNISSEUR.statut")
+                );
+            } else {
+                return null;
+            }
+        }
+    }
+    public void updateDB(CommandeFournisseur comF){
+        String query="UPDATE COMMANDEFOURNISSEUR SET (fournisseur_id=?,statut=?) WHERE id=?;";
+        try{
+            PreparedStatement stmt=connection.prepareStatement(query);
+            stmt.setInt(1,comF.getFournisseur().getId());
+            stmt.setString(2, String.valueOf(comF.getStatut()));;
+            stmt.setInt(3,comF.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

@@ -7,8 +7,8 @@ public class Fournisseur {
 	private String email;
 	private String adresse;
 	
-	public Fournisseur(int id, String nom, String telephone, String email, String adresse) {
-		this.id = id;
+	public Fournisseur(int id,String nom, String telephone, String email, String adresse) {
+		this.id=id;
 		this.nom = nom;
 		this.telephone = telephone;
 		this.email = email;

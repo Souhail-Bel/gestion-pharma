@@ -125,7 +125,7 @@ public class StockController {
         new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getProduit().getPrixVente()));
     	
     	colStatut.setCellValueFactory(cellData -> {
-    		boolean estLowStock = cellData.getValue().estLowStock();
+    		boolean estLowStock = cellData.getValue().difference()<0;
     		return new javafx.beans.property.SimpleStringProperty(estLowStock ? "ALERTE STOCK" : "OK");
     	});
     	

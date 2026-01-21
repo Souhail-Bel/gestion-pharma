@@ -13,11 +13,11 @@ public class CommandeFournisseur {
 	private StatutCommande statut;
 	private List<LigneCommandeFournisseur> lignes = new ArrayList<>();
 	
-	public CommandeFournisseur(int id, Fournisseur fournisseur, LocalDateTime date, String statut_str) {
-		
+	public CommandeFournisseur(int id, Fournisseur fournisseur,LocalDateTime date, String statut_str) {
+
 		this.id = id;
 		this.fournisseur = fournisseur;
-		this.date = date;
+		this.date = java.time.LocalDateTime.now();
 		
 		try {
 			this.statut = StatutCommande.valueOf(statut_str.toUpperCase());

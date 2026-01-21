@@ -10,12 +10,14 @@ import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-
+import javafx.geometry.Pos;
 import javafx.animation.*;
-
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class UI_Controller {
@@ -36,7 +38,7 @@ public class UI_Controller {
 	@FXML private Label lblTitle;
 	@FXML private Label lblWelcome;
 	
-	private final double COLLAPSED_WIDTH = 60.0;
+	private final double COLLAPSED_WIDTH = 75.0;
 	private final double EXPANDED_WIDTH = 220.0;
 	
     @FXML private Button btnDashboard;
@@ -44,6 +46,7 @@ public class UI_Controller {
     @FXML private Button btnLogout;
     @FXML private Button btnStock;
     @FXML private Button btnVente;
+    @FXML private Button btnHistorique;
     @FXML private StackPane contentArea;
     @FXML private BorderPane mainBorderPane;
 
@@ -52,11 +55,29 @@ public class UI_Controller {
     @FXML
     public void initialize() {
     	
-    	if(currUtilisateur != null)
-    		lblWelcome.setText("Bienvenue, " + currUtilisateur.getNom());
+    	if(currUtilisateur != null) {
+    		lblWelcome.setText("@" + currUtilisateur.getUsername());
+
+            Label warmwelcome = new Label("Bonjour, " + currUtilisateur.getNom());
+            warmwelcome.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
+            contentArea.getChildren().add(warmwelcome);
+        }
     	
     	sidebar.setPrefWidth(COLLAPSED_WIDTH);
     	lblTitle.setVisible(false);
+    	
+    	javafx.application.Platform.runLater(() -> {
+            sidebar.setPrefWidth(COLLAPSED_WIDTH);
+            lblTitle.setVisible(false);
+            
+            for (Node node : sidebar.getChildren()) {
+                if (node instanceof Button) {
+                	Button btn = (Button) node;
+                    btn.setContentDisplay(ContentDisplay.GRAPHIC_ONLY); 
+                    btn.setAlignment(Pos.CENTER);
+                }
+            }
+        });
     	
     	sidebar.setOnMouseEntered(e -> {
     		expandSidebar();
@@ -79,6 +100,14 @@ public class UI_Controller {
     	ft.play();
     	
     	lblTitle.setVisible(true);
+    	
+    	for (Node node : sidebar.getChildren()) {
+            if (node instanceof Button) {
+                Button btn = (Button) node;
+                btn.setContentDisplay(ContentDisplay.LEFT); //icones + texte
+                btn.setAlignment(Pos.CENTER_LEFT);
+            }
+        }
     }
     
     private void collapseSidebar() {
@@ -95,6 +124,14 @@ public class UI_Controller {
     	ft.play();
     	
     	lblTitle.setVisible(false);
+    	
+    	for (Node node : sidebar.getChildren()) {
+            if (node instanceof Button) {
+                Button btn = (Button) node;
+                btn.setContentDisplay(ContentDisplay.GRAPHIC_ONLY); //icones
+                btn.setAlignment(Pos.CENTER);
+            }
+        }
     }
     
     private void animateSidebar(double newWidth) {
@@ -109,6 +146,24 @@ public class UI_Controller {
     @FXML
     void handleLogout(ActionEvent event) {
     	System.out.println("Logging out...");
+    	
+    	try {
+    		FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginLayout.fxml"));
+    		Parent root = loader.load();
+    		
+    		Stage stage = (Stage) btnLogout.getScene().getWindow();
+    		
+    		Scene scene = new Scene(root);
+    		scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+    		
+    		stage.setScene(scene);
+    		stage.centerOnScreen();
+    		stage.show();
+    		
+    		setUtilisateur(null);
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
     }
 
     @FXML

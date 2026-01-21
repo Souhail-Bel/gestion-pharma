@@ -30,6 +30,12 @@ public class Vente {
         lignes.add(ligne);
         total += ligne.getSousTotal();
     }
+    public int getId() {return id;}
+    public LocalDateTime getDate() { return date; }
+    public Client getClient() {return Client;}
+    public Employe getEmploye() { return Employe; }
+    public double getTotal() {return total;}
+    public List<LigneVente> getLignes() { return lignes; }
 
 
 }

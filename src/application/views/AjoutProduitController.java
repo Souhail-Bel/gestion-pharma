@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
+
 public class AjoutProduitController {
 
     @FXML private Label lblTitle;
@@ -45,7 +47,7 @@ public class AjoutProduitController {
     }
 
     @FXML
-    private void handleSave(ActionEvent event) {
+    private void handleSave(ActionEvent event) throws SQLException {
         if (!validateInput()) return;
 
         String nom = txtNom.getText().trim();

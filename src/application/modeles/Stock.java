@@ -14,6 +14,10 @@ public class Stock {
 		this.produit = pdao.FindByID(ProduitID);
 		this.quantiteDisponible = quantiteDisponible;
 	}
+	public Stock(Produit produit, int quantiteDisponible) throws SQLException {
+		this.produit = produit;
+		this.quantiteDisponible = quantiteDisponible;
+	}
 	
 	
 	public Produit getProduit() {return produit;}

@@ -15,6 +15,7 @@ public class Fournisseur {
 		this.adresse = adresse;
 	}
 	
+	public int getId() {return id;}
 	public String getNom() {return nom;}
 	public String getTelephone() {return telephone;}
 	public String getEmail() {return email;}

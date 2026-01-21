@@ -1,18 +1,32 @@
 package application.views;
 
-import application.modeles.*;
+import java.time.format.DateTimeFormatter;
+import application.modeles.CommandeFournisseur;
+import application.modeles.Fournisseur;
+import application.modeles.LigneCommandeFournisseur;
+import application.modeles.StatutCommande;
+import application.modeles.Stock;
 import application.services.DataService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-import java.time.format.DateTimeFormatter;
 
 public class FournisseursController {
 
@@ -23,6 +37,8 @@ public class FournisseursController {
     @FXML private TableColumn<CommandeFournisseur, String> colCmdFournisseur;
     @FXML private TableColumn<CommandeFournisseur, String> colCmdStatut;
     @FXML private TableColumn<CommandeFournisseur, Void> colCmdAction;
+    
+    @FXML private TableColumn<CommandeFournisseur, String> colCmdTotal; 
 
     // fournisseurs
     @FXML private TextField txtSearchFournisseur;
@@ -38,23 +54,6 @@ public class FournisseursController {
     public void initialize() {
         setupCommandeTable();
         setupFournisseurTable();
-        
-        
-        // modifier seulement received/cancelled
-        tableCommandes.setRowFactory(tv -> {
-            TableRow<CommandeFournisseur> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    CommandeFournisseur rowData = row.getItem();
-                    if (rowData.getStatut() == StatutCommande.CREATED || rowData.getStatut() == StatutCommande.MODIFIED) {
-                    	ouvrirCommandeForm(rowData);
-                    } else {
-                        new Alert(Alert.AlertType.INFORMATION, "Impossible de modifier une commande déjà traitée.").show();
-                    }
-                }
-            });
-            return row;
-        });
     }
 
     private void setupCommandeTable() {
@@ -64,6 +63,12 @@ public class FournisseursController {
         colCmdDate.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getDate().format(fmt)));
         colCmdFournisseur.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getFournisseur().getNom()));
         
+
+        if(colCmdTotal != null) {
+            colCmdTotal.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getTotal())));
+        }
+        
+        // coleurs
         colCmdStatut.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getStatut().toString()));
         colCmdStatut.setCellFactory(col -> new TableCell<>() {
             @Override
@@ -72,27 +77,44 @@ public class FournisseursController {
                 setText(item);
                 if (item == null || empty) {
                     setStyle("");
+                    setTextFill(Color.BLACK);
                 } else if ("RECEIVED".equals(item)) {
-                    setTextFill(javafx.scene.paint.Color.GREEN);
+                    setTextFill(Color.GREEN);
                     setStyle("-fx-font-weight: bold;");
                 } else if ("CANCELED".equals(item)) {
-                    setTextFill(javafx.scene.paint.Color.RED);
+                    setTextFill(Color.RED);
+                    setStyle("-fx-font-weight: normal;");
                 } else {
-                    setTextFill(javafx.scene.paint.Color.ORANGE); // CREATED / MODIFIED
+                    setTextFill(Color.ORANGE); // CREATED / MODIFIED
+                    setStyle("-fx-font-weight: bold;");
                 }
             }
         });
 
-
+        // ajouter 3 buttons
         colCmdAction.setCellFactory(param -> new TableCell<>() {
-            private final Button btn = new Button("📥 Réceptionner");
+            private final Button btnEdit = new Button("✎");
+            private final Button btnReceive = new Button("✔");
+            private final Button btnCancel = new Button("✖");
+            private final HBox pane = new HBox(8, btnCancel, btnEdit, btnReceive);
 
             {
-                btn.setStyle("-fx-background-color: #2E7D32; -fx-text-fill: white; -fx-font-size: 10px;");
-                btn.setOnAction(event -> {
-                    CommandeFournisseur cmd = getTableView().getItems().get(getIndex());
-                    handleReception(cmd);
-                });
+                // annuler
+                btnCancel.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius:4;");
+                btnCancel.setTooltip(new Tooltip("Annuler"));
+                btnCancel.setOnAction(e -> handleAnnulation(getTableView().getItems().get(getIndex())));
+
+                // modifer
+                btnEdit.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius:4;");
+                btnEdit.setTooltip(new Tooltip("Modifier"));
+                btnEdit.setOnAction(e -> ouvrirCommandeForm(getTableView().getItems().get(getIndex())));
+
+                // recevoir
+                btnReceive.setStyle("-fx-background-color: #22c55e; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius:4;");
+                btnReceive.setTooltip(new Tooltip("Réceptionner"));
+                btnReceive.setOnAction(e -> handleReception(getTableView().getItems().get(getIndex())));
+
+                pane.setAlignment(Pos.CENTER);
             }
 
             @Override
@@ -101,39 +123,39 @@ public class FournisseursController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    // afficher button if not received/canceled
                     CommandeFournisseur cmd = getTableView().getItems().get(getIndex());
-                    boolean editable = (cmd.getStatut() == StatutCommande.CREATED || cmd.getStatut() == StatutCommande.MODIFIED);
-                    setGraphic(editable ? btn : null);
+
+                    boolean isActive = (cmd.getStatut() == StatutCommande.CREATED || cmd.getStatut() == StatutCommande.MODIFIED);
+                    setGraphic(isActive ? pane : null);
                 }
             }
         });
     }
-
-    private void setupFournisseurTable() {
-        tableFournisseurs.setItems(DataService.getFournisseurs());
-        colFourNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        colFourTel.setCellValueFactory(new PropertyValueFactory<>("telephone"));
-        colFourEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
-        colFourAdress.setCellValueFactory(new PropertyValueFactory<>("adresse"));
-    }
-
-
-    @FXML
-    void handleNouvelleCommande(ActionEvent event) {
-    	ouvrirCommandeForm(null);
+    
+    private void handleAnnulation(CommandeFournisseur commande) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, 
+                "Voulez-vous vraiment annuler la commande #" + commande.getId() + " ?", 
+                ButtonType.YES, ButtonType.NO);
+                
+        if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            commande.setStatut(StatutCommande.CANCELED);
+            tableCommandes.refresh();
+        }
     }
     
-
+    @FXML
+    void handleNouvelleCommande(ActionEvent event) {
+        ouvrirCommandeForm(null);
+    }
 
     void ouvrirCommandeForm(CommandeFournisseur commande) {
-    	try {
+        try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("NouvelleCommandeLayout.fxml"));
             Parent root = loader.load();
             
             NouvelleCommandeController ctrl = loader.getController();
             if (commande != null) {
-            	ctrl.setCurrCommande(commande);
+                ctrl.setCurrCommande(commande);
             }
             
             Stage stage = new Stage();
@@ -141,7 +163,7 @@ public class FournisseursController {
             stage.setTitle(commande == null ? "Nouvelle Commande" : "Modifier Commande");
             stage.showAndWait();
             
-            tableCommandes.refresh(); // Refresh list after close
+            tableCommandes.refresh(); 
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -149,7 +171,6 @@ public class FournisseursController {
 
     @FXML
     void handleAjoutFournisseur(ActionEvent event) {
-        // Simple Quick Add (Like we did for Client)
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Nouveau Fournisseur");
         dialog.setHeaderText("Ajouter un fournisseur...");
@@ -164,7 +185,7 @@ public class FournisseursController {
     }
 
     private void handleReception(CommandeFournisseur commande) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Confirmer la réception de la commande #" + commande.getId(), ButtonType.YES, ButtonType.NO);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Confirmer la réception (Stock sera mis à jour) ?", ButtonType.YES, ButtonType.NO);
         if (confirm.showAndWait().orElse(ButtonType.NO) != ButtonType.YES) return;
 
         for (LigneCommandeFournisseur ligne : commande.getLignes()) {
@@ -178,5 +199,13 @@ public class FournisseursController {
 
         commande.setStatut(StatutCommande.RECEIVED);
         tableCommandes.refresh();
+    }
+    
+    private void setupFournisseurTable() {
+        tableFournisseurs.setItems(DataService.getFournisseurs());
+        colFourNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        colFourTel.setCellValueFactory(new PropertyValueFactory<>("telephone"));
+        colFourEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+        colFourAdress.setCellValueFactory(new PropertyValueFactory<>("adresse"));
     }
 }

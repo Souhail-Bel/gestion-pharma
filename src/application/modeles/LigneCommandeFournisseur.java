@@ -16,7 +16,7 @@ public class LigneCommandeFournisseur {
     }
 	
 	public Produit getProduit() {return produit;}
-	public double getTotal() {return quantite * prixAchat;}
+	public double getPrixAchat() {return prixAchat;}
 	public int getQuantite() {return quantite; }
 
 

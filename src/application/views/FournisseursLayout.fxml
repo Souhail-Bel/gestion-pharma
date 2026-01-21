@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" prefHeight="700.0" prefWidth="1000.0" fx:controller="application.views.FournisseursController">
   <center>
     <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
@@ -38,8 +39,12 @@
                     <TableColumn fx:id="colCmdId" prefWidth="50.0" text="#"/>
                     <TableColumn fx:id="colCmdDate" prefWidth="120.0" text="Date"/>
                     <TableColumn fx:id="colCmdFournisseur" prefWidth="200.0" text="Fournisseur"/>
+                    
+                    <TableColumn fx:id="colCmdTotal" prefWidth="100.0" text="Total"/>
+                    
                     <TableColumn fx:id="colCmdStatut" prefWidth="100.0" text="Statut"/>
-                    <TableColumn fx:id="colCmdAction" prefWidth="120.0" style="-fx-alignment: CENTER;" text="Action (Réception)"/>
+                    
+                    <TableColumn fx:id="colCmdAction" prefWidth="160.0" style="-fx-alignment: CENTER;" text="Actions"/>
                   </columns>
                   <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>

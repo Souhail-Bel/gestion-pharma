@@ -32,6 +32,16 @@ public class CommandeFournisseur {
 	public StatutCommande getStatut() {return statut;}
 	public List<LigneCommandeFournisseur> getLignes() {return lignes;}
 	
+	public double getTotal() {
+		if (lignes == null || lignes.isEmpty()) return 0.0;
+		
+		double somme = 0.0;
+		for(LigneCommandeFournisseur lc : this.lignes)
+			somme += lc.getQuantite() + lc.getPrixAchat();
+		
+		return somme;
+	}
+	
 	public void setStatut(StatutCommande statut) {
 		this.statut = statut;
 	}

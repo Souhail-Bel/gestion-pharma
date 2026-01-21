@@ -76,7 +76,7 @@ public class AjoutProduitController {
             int newId = DataService.getStockGlobal().size() + 1;
             
             Produit p = new Produit(newId, nom, prix, seuil);
-            Stock s = new Stock(p, quantite);
+            Stock s = new Stock(p.getId(), quantite);
             
             DataService.getStockGlobal().add(s);
         }

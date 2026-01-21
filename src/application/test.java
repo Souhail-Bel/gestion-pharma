@@ -11,13 +11,7 @@ public class test {
     public static void main(String[] args) {
         try {
             Connection conn = DatabaseConnection.getConnection();
-            clientDAO cdao= new clientDAO(conn);
-            Client client = cdao.FindByID(1);
-            if (client != null) {
-                System.out.println("Client trouvé : " + client.getNom() );
-            } else {
-                System.out.println("Client non trouvé.");
-            }
+            produitDAO pdao= new produitDAO(conn);
 
 
     } catch (SQLException e) {

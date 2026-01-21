@@ -54,7 +54,7 @@ public class DataService {
 	private static void initData() throws SQLException {
 		for(int i=1; i < 50; i++) {
 			Produit p = new Produit(i, "Produit N°"+i, (int) (Math.random() * 50), (int) (Math.random() * 20));
-			stockGlobal.add(new Stock(p, (int) (Math.random() * 100)));
+			stockGlobal.add(new Stock(p.getId(), (int) (Math.random() * 100)));
 		}
 		
 		for(int i=1; i < 20; i++) {

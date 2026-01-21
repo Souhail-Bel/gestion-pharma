@@ -15,18 +15,19 @@ public class Stock {
 		this.produit = pdao.FindByID(produitID);
 		this.quantiteDisponible = quantiteDisponible;
 	}
-	public static void addstock(int produitID,int quantiteDisponible) throws SQLException {
-		stockDAO sdao=new stockDAO(DatabaseConnection.getConnection());;
+	public static void newstock(int produitID,int quantiteDisponible) throws SQLException {
+		stockDAO sdao=new stockDAO(DatabaseConnection.getConnection());
 		sdao.Register(new Stock(produitID,quantiteDisponible));
 	}
-/*	public void lowerStock(int quantite)throws StockInsuffisantException
-	{
-		if(quantiteDisponible<quantite){
-			throw new StockInsuffisantException("Stock insuffisant");
-		}else{
+	public void addstock(int quantite) throws StockInsuffisantException, SQLException {
+		if(quantiteDisponible<quantite)
+			throw new StockInsuffisantException("Stock Insuffisant");
+		else{
 			quantiteDisponible-=quantite;
+			stockDAO sdao=new stockDAO(DatabaseConnection.getConnection());
+			sdao.updateStock(produit.getId(),quantiteDisponible);
 		}
-	}*/
+	}
 	public Produit getProduit() {return produit;}
 
 	public int getQuantiteDisponible() {return quantiteDisponible;}

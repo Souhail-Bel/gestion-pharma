@@ -55,4 +55,15 @@ public class stockDAO {
             }
         }
     }
+    public void updateStock(int id,int nouv_quantite){
+        String query="UPDATE STOCK SET (quantiteDisponible=?) WHERE produit_id=?;";
+        try{
+            PreparedStatement stmt=connection.prepareStatement(query);
+            int rows=stmt.executeUpdate();
+            if (rows==1)
+                System.out.println("Stockage réussit");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

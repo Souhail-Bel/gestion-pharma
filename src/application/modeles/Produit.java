@@ -25,8 +25,9 @@ public class Produit {
 		int id=pdao.taille()+1;
 		pdao.Register(new Produit(id,nom,prixVente,seuilMinimal));
 	}
-	public void vendre(int quantite) throws StockInsuffisantException {
-		stock.lowerStock(quantite);
+	//a method called by commandFournisseur for every LigneCommandeFournisseur
+	public void recieve(int quantite) throws StockInsuffisantException, SQLException {
+		stock.addstock(quantite);
 	}
 
 	public int getId() {return id;}

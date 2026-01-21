@@ -6,10 +6,10 @@ import java.sql.SQLException;
 public class DatabaseConnection {
 
     // Database name can be provided via system property "db.name" or falls back to "gestion_pharma"
-    private static final String DB_NAME = System.getProperty("db.name", "gestion_pharma");
-    private static final String URL = "jdbc:mysql://localhost:3306/Pharmacie";
-    private static final String USER = "root";
-    private static final String PASSWORD = "Klonoa";
+    private static final String DB_NAME = System.getProperty("db.name", "Pharmacie");
+    private static final String URL = "jdbc:mysql://localhost:3306/" + DB_NAME;
+    private static final String USER = "pharma_user";
+    private static final String PASSWORD = "securepass";
 
     // Private constructor to prevent object creation
     private DatabaseConnection() {}

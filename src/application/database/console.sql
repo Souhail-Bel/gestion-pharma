@@ -1,106 +1,135 @@
-drop database if exists Pharmacie;
-create database Pharmacie;
-use Pharmacie;
-create table EMPLOYE (
-            id INT primary key AUTO_INCREMENT,
-            nom VARCHAR(50),
-            prenom VARCHAR(50),
-            username VARCHAR(50) UNIQUE,
-            password VARCHAR(255),
-            role ENUM('ADMIN','EMPLOYE')
-        );
-insert into EMPLOYE (nom, prenom, username, password, role) values
-('akrem', 'medimagh', 'lost4onin', 'akrem123', 'ADMIN'),
-('souhail', 'belhassen', 'he', 'he123', 'EMPLOYE'),
-('elleuch', 'ahmed', 'nest', 'nest123', 'EMPLOYE'),
-('bhouri', 'adam', 'hyper', 'hyper123', 'EMPLOYE'),
-('gadhgadhi', 'aziz', 'gadh', 'gadh123', 'EMPLOYE');
-create table produit(
-    id INT primary key AUTO_INCREMENT,
+DROP DATABASE IF EXISTS Pharmacie;
+CREATE DATABASE Pharmacie;
+USE Pharmacie;
+
+
+
+CREATE USER 'pharma_user'@'localhost' IDENTIFIED BY 'securepass';
+GRANT ALL PRIVILEGES ON Pharmacie.* TO 'pharma_user'@'localhost';
+FLUSH PRIVILEGES;
+
+
+
+CREATE TABLE EMPLOYE (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(50),
+    prenom VARCHAR(50),
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(255),
+    role ENUM('ADMIN','EMPLOYE')
+);
+
+
+INSERT INTO EMPLOYE (nom, prenom, username, password, role) VALUES
+('akrem', 'medimagh', 'lost4onin', SHA2('akrem123', 256), 'ADMIN'),
+('souhail', 'belhassen', 'he', SHA2('he123', 256), 'EMPLOYE'),
+('elleuch', 'ahmed', 'nest', SHA2('nest123', 256), 'EMPLOYE'),
+('bhouri', 'adam', 'hyper', SHA2('hyper123', 256), 'EMPLOYE'),
+('gadhgadhi', 'aziz', 'gadh', SHA2('gadh123', 256), 'EMPLOYE');
+
+
+CREATE TABLE PRODUIT (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100),
-    prixVente double,
+    prixVente DOUBLE,
     seuilMinimal INT
 );
-insert into produit (id,nom, prixVente, seuilMinimal) values
-(1,'Paracetamol', 1.5, 10),
-(2,'Ibuprofen', 2.0, 15),
-(3,'Aspirin', 1.2, 20),
-(4,'Amoxicillin', 3.0, 5),
-(5,'Cough Syrup', 4.5, 8);
 
-create table stock(
-    produit_id INT primary key,
+INSERT INTO PRODUIT (nom, prixVente, seuilMinimal) VALUES
+('Paracetamol', 1.5, 10),
+('Ibuprofen', 2.0, 15),
+('Aspirin', 1.2, 20),
+('Amoxicillin', 3.0, 5),
+('Cough Syrup', 4.5, 8);
+
+
+CREATE TABLE STOCK (
+    produit_id INT PRIMARY KEY,
     quantiteDisponible INT,
-    FOREIGN KEY (produit_id) REFERENCES produit(id)
+    FOREIGN KEY (produit_id) REFERENCES PRODUIT(id)
 );
-insert into stock (produit_id,quantiteDisponible) values
-(1, 50),
-(2, 30),
-(3, 20),
-(4, 10),
-(5, 15);
-create table fournisseur(
-    id INT primary key AUTO_INCREMENT,
+
+INSERT INTO STOCK (produit_id, quantiteDisponible) VALUES
+(1, 50), (2, 30), (3, 20), (4, 10), (5, 15);
+
+
+CREATE TABLE FOURNISSEUR (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100),
     telephone VARCHAR(100),
-    email VARCHAR(100)
+    email VARCHAR(100),
+    adresse VARCHAR(255) DEFAULT ''
 );
-insert into fournisseur (nom, telephone, email) values
+
+INSERT INTO FOURNISSEUR (nom, telephone, email) VALUES
 ('PharmaSupply Co.', '123-456-7890', 'fournisseur@ieee.org');
-create table CommandeFournisseur(
-    id INT primary key AUTO_INCREMENT,
+
+
+CREATE TABLE COMMANDE_FOURNISSEUR (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     fournisseur_id INT,
     dateCommande DATE,
-    statut ENUM('EN_ATTENTE','RECU','ANNULE'),
-    FOREIGN KEY (fournisseur_id) REFERENCES fournisseur(id)
+    statut VARCHAR(50),
+    FOREIGN KEY (fournisseur_id) REFERENCES FOURNISSEUR(id)
 );
-insert into CommandeFournisseur (id,fournisseur_id, dateCommande, statut) values
-(0,1, '2024-06-01', 'EN_ATTENTE');
 
-create table LigneCommandeFournisseur(
+INSERT INTO COMMANDE_FOURNISSEUR (id, fournisseur_id, dateCommande, statut) VALUES
+(1, 1, '2024-06-01', 'EN_ATTENTE');
+
+
+CREATE TABLE LIGNE_COMMANDE_FOURNISSEUR (
     commande_id INT,
     produit_id INT,
     quantite INT,
-    prixAchat double,
+    prixAchat DOUBLE,
     PRIMARY KEY (commande_id, produit_id),
-    FOREIGN KEY (commande_id) REFERENCES CommandeFournisseur(id),
-    FOREIGN KEY (produit_id) REFERENCES produit(id)
+    FOREIGN KEY (commande_id) REFERENCES COMMANDE_FOURNISSEUR(id),
+    FOREIGN KEY (produit_id) REFERENCES PRODUIT(id)
 );
-insert into LigneCommandeFournisseur (commande_id, produit_id, quantite, prixAchat) values
+
+INSERT INTO LIGNE_COMMANDE_FOURNISSEUR (commande_id, produit_id, quantite, prixAchat) VALUES
 (1, 1, 100, 1.0),
 (1, 2, 200, 1.5);
-create table client(
-    id INT primary key AUTO_INCREMENT,
+
+
+CREATE TABLE CLIENT (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100),
     prenom VARCHAR(100),
     telephone VARCHAR(100)
 );
-insert into client (id,nom, prenom, telephone) values
-(1,'Doe', 'John', '555-1234'),
-(2,'Smith', 'Jane', '555-5678');
-create table vente(
-    id INT primary key AUTO_INCREMENT,
+
+INSERT INTO CLIENT (nom, prenom, telephone) VALUES
+('Doe', 'John', '20521234'),
+('Smith', 'Jane', '95525678');
+
+
+CREATE TABLE VENTE (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     client_id INT,
     employe_id INT,
-    dateVente DATE,
-    total double,
-    FOREIGN KEY (client_id) REFERENCES client(id),
+    dateVente DATETIME,
+    total DOUBLE,
+    FOREIGN KEY (client_id) REFERENCES CLIENT(id),
     FOREIGN KEY (employe_id) REFERENCES EMPLOYE(id)
 );
-insert into vente (client_id, employe_id, dateVente, total) values
-(1, 2, '2024-06-10', 15.0),
-(2, 3, '2024-06-11', 25.0);
-create table LigneVente(
-    id INT primary key AUTO_INCREMENT,
+
+INSERT INTO VENTE (client_id, employe_id, dateVente, total) VALUES
+(1, 2, '2024-06-10 10:00:00', 15.0),
+(2, 3, '2024-06-11 11:30:00', 25.0);
+
+
+CREATE TABLE LIGNE_VENTE (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     vente_id INT,
     produit_id INT,
     quantite INT,
-    prixUnitaire double,
-    FOREIGN KEY (vente_id) REFERENCES vente(id),
-    FOREIGN KEY (produit_id) REFERENCES produit(id)
+    prixUnitaire DOUBLE,
+    FOREIGN KEY (vente_id) REFERENCES VENTE(id),
+    FOREIGN KEY (produit_id) REFERENCES PRODUIT(id)
 );
-insert into LigneVente (vente_id, produit_id, quantite, prixUnitaire) values
+
+INSERT INTO LIGNE_VENTE (vente_id, produit_id, quantite, prixUnitaire) VALUES
 (1, 1, 5, 1.5),
 (1, 2, 3, 2.0),
 (2, 3, 10, 1.2);
-

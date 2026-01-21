@@ -1,15 +1,17 @@
 package application.services;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 
+import application.dao.*;
 import application.modeles.Client;
 import application.modeles.CommandeFournisseur;
 import application.modeles.Fournisseur;
 import application.modeles.Produit;
 import application.modeles.Stock;
 import application.modeles.Vente;
-
+import application.resources.DatabaseConnection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -52,20 +54,22 @@ public class DataService {
 	
 	// (int id, String nom, double prixVente, int seuilMinimal)
 	private static void initData() throws SQLException {
-		for(int i=1; i < 50; i++) {
-			Produit p = new Produit(i, "Produit N°"+i, (int) (Math.random() * 50), (int) (Math.random() * 20));
-			stockGlobal.add(new Stock(p, (int) (Math.random() * 100)));
-		}
-		
-		for(int i=1; i < 20; i++) {
-			Fournisseur f = new Fournisseur(
-					i, "Fournisseur N°" + i,
-					(new DecimalFormat("00000000")).format((int)(Math.random()*100000000)),
-					"fournisseur."+i+"@email.com",
-					"Avenue N°"+i);
-			fournisseurs.add(f);
-		}
-		
-		clients.add(new Client(0, "Anonyme", "",""));
+		Connection conn = DatabaseConnection.getConnection();
+
+        clientDAO cDao = new clientDAO(conn);
+        clients.setAll(cDao.getAllClients()); 
+        
+        if (clients.isEmpty()) {
+            clients.add(new Client(0, "Anonyme", "", ""));
+        }
+
+
+        stockDAO sDao = new stockDAO(conn);
+        stockGlobal.setAll(sDao.getAllStocks());
+
+        venteDAO vDao = new venteDAO(conn);
+        historiqueVentes.setAll(vDao.getAllVentes());
+        
+        
 	}
 }

@@ -1,351 +1,286 @@
 package application.views;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import application.exceptions.CommandeInvalideException;
-import application.exceptions.StockInsuffisantException;
-import application.modeles.Client;
-import application.modeles.Employe;
-import application.modeles.LigneVente;
-import application.modeles.Stock;
-import application.modeles.Vente;
+import application.dao.clientDAO;
+import application.dao.stockDAO;
+import application.dao.venteDAO;
+import application.modeles.*;
 import application.services.DataService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-// import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.TableCell;
 import javafx.scene.layout.GridPane;
+import javafx.util.StringConverter;
+
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Optional;
 
 public class VenteController {
 
-    @FXML private Button btnAjouter;
+    // catalog
+    @FXML private TextField txtSearch;
+    @FXML private TableView<Stock> tableProduits;
+    @FXML private TableColumn<Stock, String> colProdNom, colProdPrix;
+    @FXML private TableColumn<Stock, Integer> colProdStock;
+    @FXML private TableColumn<Stock, Void> colProdAction;
+
+    // carte/client
+    @FXML private ComboBox<Client> cmbClient;
+    @FXML private TableView<LigneVente> tablePanier;
+    @FXML private TableColumn<LigneVente, String> colPanierNom, colPanierTotal;
+    @FXML private TableColumn<LigneVente, Integer> colPanierQte;
+    @FXML private TableColumn<LigneVente, Void> colPanierAction;
+    
+    @FXML private Label lblTotal;
     @FXML private Button btnValider;
 
-    @FXML private TableColumn<Stock, String> colCatNom;
-    @FXML private TableColumn<Stock, Double> colCatPrix;
-    @FXML private TableColumn<Stock, Integer> colCatStock;
-    
-    @FXML private TableColumn<LigneVente, String> colPanierNom;
-    @FXML private TableColumn<LigneVente, Integer> colPanierQte;
-    @FXML private TableColumn<LigneVente, Double> colPanierTotal;
-    @FXML private TableColumn<LigneVente, Void> colAction;
+    // données
+    private ObservableList<LigneVente> panier = FXCollections.observableArrayList();
+    private FilteredList<Stock> filteredStock;
 
-    @FXML private ComboBox<Client> comboClient;
-
-    @FXML private Label lblError;
-    @FXML private Label lblTotal;
-    
-
-    @FXML private TableView<Stock> tableCatalogue;
-    @FXML private TableView<LigneVente> tablePanier;
-    
-    private ObservableList<LigneVente> panierList = FXCollections.observableArrayList();
-    
-    @FXML private TextField txtSearch;
-    @FXML private TextField txtSearchClient;
-
-    
     @FXML
     public void initialize() {
-    	remplirTable();
-    	
-    	tablePanier.setItems(panierList);
-    	comboClient.setItems(DataService.getClients());
-    	
-    	//if(!clientList.isEmpty()) comboClient.getSelectionModel().select(0);
-    	if (!DataService.getClients().isEmpty())
-            comboClient.getSelectionModel().select(0);
-    	
-    	// ajouter un "X" pour supprimer un ligne de vente
-    	colAction.setCellFactory(param -> new TableCell<>() {
-    	    private final Button btn = new Button("X");
-
-    	    {
-    	        btn.setStyle("-fx-background-color: #ffebee; -fx-text-fill: #c62828; -fx-font-weight: bold; -fx-cursor: hand;");
-    	        btn.setOnAction(event -> {
-    	            LigneVente item = getTableView().getItems().get(getIndex());
-    	            handleRetirerArticle(item);
-    	        });
-    	    }
-
-    	    @Override
-    	    protected void updateItem(Void item, boolean empty) {
-    	        super.updateItem(item, empty);
-    	        if (empty) {
-    	            setGraphic(null);
-    	        } else {
-    	            setGraphic(btn);
-    	        }
-    	    }
-    	});
-    	
-    	setupRechercheClient();
-    }
-    
-    
-    @FXML
-    void handleAjouter(ActionEvent event) {
-    	lblError.setVisible(false);
-    	Stock selected = tableCatalogue.getSelectionModel().getSelectedItem();
-    	
-    	if(selected == null) return;
-    	
-    	try {
-    		ajouterProduitAuPanier(selected, 1);
-    		
-    		tablePanier.refresh();
-    		miseAJourTotal();
-    	} catch (StockInsuffisantException e) {
-    		lblError.setText("Erreur: " + e.getMessage());
-    		lblError.setVisible(true);
-    	}
-    }
-    
-    @FXML
-    void handleRetirerArticle(LigneVente selected) {
-    	
-    	if(selected != null) {
-    		panierList.remove(selected);
-    		miseAJourTotal();
-    	}
-    	
+        setupProductTable();
+        setupPanierTable();
+        setupClientSection();
+        setupSearch();
     }
 
-    @FXML
-    void handleValiderVente(ActionEvent event) {
-    		lblError.setVisible(false);
-    		
-    		try {
-    			validerCommande();
-    			
-    			int v_Id = DataService.getHistoriqueVentes().size() + 1;
-    			Client c = comboClient.getValue();
-    			Employe e = UI_Controller.getUtilisateur();
-    			
-    			Vente vente = new Vente(v_Id, c, e);
-    			
-    			for(LigneVente lv : panierList) {
-    				vente.addLigne(lv);
-    				
-    				for (Stock stockItem : DataService.getStockGlobal()) {
-    					if(stockItem.getProduit().getId() == lv.getProduit().getId()) {
-    						int ancQte = stockItem.getQuantiteDisponible();
-    						int venduQte = lv.getQuantite();
-    						
-    						stockItem.setQuantiteDisponible(ancQte - venduQte);
-    						
-    						break;
-    					}
-    				}
-    			}
-    			
-    			DataService.getHistoriqueVentes().add(vente);
-    			
-    			Alert alert = new Alert(
-    					Alert.AlertType.INFORMATION,
-    					"Vente enregistrée!"
-    			);
-    			alert.showAndWait();
-    			
-    			panierList.clear();
-    			miseAJourTotal();
-    			tableCatalogue.refresh();
-    			
-    		} catch (CommandeInvalideException e) {
-    			lblError.setText(e.getMessage());
-    			lblError.setVisible(true);
-    		} catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-    }
-    
-    
-    
-    private void ajouterProduitAuPanier(Stock stockItem, int qteDemandee) throws StockInsuffisantException {
-    	int qteDansPanier = 0;
-    	LigneVente currLigne = null;
-    	
-    	for(LigneVente lv : panierList) {
-    		if(lv.getProduit().getId() == stockItem.getProduit().getId()) {
-    			qteDansPanier = lv.getQuantite();
-    			currLigne = lv;
-    			break;
-    		}
-    	}
-    	
-    	if((qteDansPanier + qteDemandee) > stockItem.getQuantiteDisponible()) {
-    		throw new StockInsuffisantException("Stock insuffisant pour " + stockItem.getProduit().getNom());
-    	}
-    	
-    	// mettre a jour ou ajouter
-    	if(currLigne != null) {
-    		currLigne.setQuantite(qteDansPanier + qteDemandee);
-    	} else {
-    		panierList.add(new LigneVente(stockItem.getProduit(), qteDemandee));
-    	}
-    }
-    
-    private void validerCommande() throws CommandeInvalideException {
-    	if(panierList.isEmpty()) {
-    		throw new CommandeInvalideException("Panier vide.");
-    	}
-    	
-    	if (comboClient.getValue() == null) {
-    		throw new CommandeInvalideException("Sélectionnez un client.");
-    	}
-    }
-    
-    
-    
-    private void miseAJourTotal() {
-    	double total = 0.0;
-    	for(LigneVente lv : panierList)
-    		total += lv.getSousTotal();
-    	
-    	lblTotal.setText(String.format("%.2f TND", total));
-    }
 
-    
-    private void remplirTable() {
-    	colCatNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getProduit().getNom()));
-        colCatPrix.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getProduit().getPrixVente()));
-        colCatStock.setCellValueFactory(new PropertyValueFactory<>("quantiteDisponible"));
-
-        colPanierNom.setCellValueFactory(new PropertyValueFactory<>("nomProduit"));
-        colPanierQte.setCellValueFactory(new PropertyValueFactory<>("quantite"));
-        colPanierTotal.setCellValueFactory(new PropertyValueFactory<>("sousTotal"));
+    private void setupClientSection() {
+        cmbClient.setItems(DataService.getClients());
         
-        tableCatalogue.setItems(DataService.getStockGlobal());
-    }
-    
-    
-    
-    
-    
-    
-    private void setupRechercheClient() {
-    	FilteredList<Client> filteredClients = new FilteredList<>(DataService.getClients(), p -> true);
-        
-        comboClient.setItems(filteredClients);
 
-        // filtre selon nom ou telephone
-        txtSearchClient.textProperty().addListener((obs, ancVal, nvVal) -> {
-            filteredClients.setPredicate(client -> {
-                if (nvVal == null || nvVal.isEmpty()) return true;
-                
-                String nvValLower = nvVal.toLowerCase();
-                
-                return client.getNom().toLowerCase().contains(nvValLower) 
-                    || client.getTelephone().contains(nvValLower);
-            });
-            
-            if (!filteredClients.isEmpty()) {
-                comboClient.show();
-            }
+        cmbClient.setConverter(new StringConverter<Client>() {
+            @Override public String toString(Client c) { return c == null ? "" : c.getNom(); }
+            @Override public Client fromString(String string) { return null; }
         });
-    }
-    
 
-    
+
+        DataService.getClients().stream()
+            .filter(c -> c.getNom().equalsIgnoreCase("Anonyme"))
+            .findFirst()
+            .ifPresent(cmbClient::setValue);
+    }
+
     @FXML
-    void handleNouveauClient(ActionEvent event) {
-    	/*
-    	TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Nouveau Client");
-        dialog.setHeaderText("Création");
-        dialog.setContentText("Nom du client :");
-    
-        dialog.showAndWait().ifPresent(nom -> {
-        	if(!nom.trim().isEmpty()) {
-        		Client nv = new Client(0, nom, "");
-        		clientList.add(nv);
-        		comboClient.getSelectionModel().select(nv);
-        	}
-        });*/
-    	
+    private void handleAjoutClient(ActionEvent event) {
         Dialog<Client> dialog = new Dialog<>();
         dialog.setTitle("Nouveau Client");
-        dialog.setHeaderText("Ajouter un client...");
+        dialog.setHeaderText("Ajouter un client");
 
-        ButtonType confButtonType = new ButtonType("Ajouter", ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confButtonType, ButtonType.CANCEL);
+
+        TextField txtNom = new TextField(); 
+        txtNom.setPromptText("Nom & Prénom");
+        
+        TextField txtTel = new TextField(); 
+        txtTel.setPromptText("Téléphone (8 chiffres)");
+        
+
+        Label lblError = new Label();
+        lblError.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
 
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
-
-        TextField username = new TextField();
-        username.setPromptText("Nom Prénom");
-        TextField phone = new TextField();
-        phone.setPromptText("Téléphone");
-
-        Label lblErreurDialog = new Label();
-        lblErreurDialog.setStyle("-fx-text-fill: red;");
+        grid.setHgap(10); grid.setVgap(10); grid.setPadding(new Insets(20));
         
-        grid.add(new Label("Nom :"), 0, 0);
-        grid.add(username, 1, 0);
-        grid.add(new Label("Tél :"), 0, 1);
-        grid.add(phone, 1, 1);
+        grid.add(new Label("Nom :"), 0, 0); 
+        grid.add(txtNom, 1, 0);
+        grid.add(new Label("Tél :"), 0, 1); 
+        grid.add(txtTel, 1, 1);
+        grid.add(lblError, 1, 2);
         
-        grid.add(lblErreurDialog, 1, 2);
-
         dialog.getDialogPane().setContent(grid);
-        javafx.application.Platform.runLater(username::requestFocus);
-        
-        
-        Button btnAjouterClientDialog = (Button) dialog.getDialogPane().lookupButton(confButtonType);
-        
-        
-        btnAjouterClientDialog.addEventFilter(ActionEvent.ACTION, ae -> {
-        	String num = phone.getText();
-        	
-        	if(num == null || !num.matches("\\d{8}")) {
-        		ae.consume(); //  empecher de fermer
-        		
-        		lblErreurDialog.setText("Numéro invalide");
-        		phone.setStyle("-fx-border-color: red;");
-        	} else if (username.getText().isEmpty()) {
-        		ae.consume();
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        		lblErreurDialog.setText("Nom obligatoire");
-        		username.setStyle("-fx-border-color: red;");
-        	}
+
+        final Button btnOk = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        
+        btnOk.addEventFilter(ActionEvent.ACTION, ae -> {
+            String name = txtNom.getText().trim();
+            String phone = txtTel.getText().trim();
+            
+            txtNom.setStyle("");
+            txtTel.setStyle("");
+            lblError.setText("");
+
+            // verifier nom
+            if (name.isEmpty()) {
+                txtNom.setStyle("-fx-border-color: red;");
+                lblError.setText("Le nom est obligatoire.");
+                ae.consume();
+                return;
+            }
+            
+            // verifier tele
+            if (!phone.matches("\\d{8}")) {
+                txtTel.setStyle("-fx-border-color: red;");
+                lblError.setText("Le téléphone doit contenir 8 chiffres.");
+                ae.consume(); 
+                return;
+            }
         });
-        
-        
 
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == confButtonType) {
-                int newId = DataService.getClients().size() + 1; 
-                return new Client(newId, username.getText(), phone.getText());
+
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) {
+                int nextId = DataService.getClients().stream().mapToInt(Client::getId).max().orElse(0) + 1;
+                return new Client(nextId, txtNom.getText().trim(), "", txtTel.getText().trim());
             }
             return null;
         });
 
-        Optional<Client> result = dialog.showAndWait();
-
-        result.ifPresent(newClient -> {
-        	DataService.getClients().add(newClient);
-            txtSearchClient.setText(""); 
-            comboClient.getSelectionModel().select(newClient); 
+        dialog.showAndWait().ifPresent(tempClient -> {
+            try {
+                // 1. SAVE TO DB
+                clientDAO dao = new clientDAO(application.resources.DatabaseConnection.getConnection());
+                int newId = dao.save(tempClient);
+                
+                // 2. UPDATE OBJECT WITH REAL ID
+                Client realClient = new Client(newId, tempClient.getNom(), "", tempClient.getTelephone());
+                
+                // 3. ADD TO MEMORY
+                DataService.getClients().add(realClient);
+                cmbClient.setValue(realClient);
+                
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible de sauvegarder le client dans la base de données.");
+                alert.show();
+            }
         });
     }
+
+    // table produits
+    private void setupProductTable() {
+        filteredStock = new FilteredList<>(DataService.getStockGlobal(), p -> true);
+        tableProduits.setItems(filteredStock);
+
+        colProdNom.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduit().getNom()));
+        colProdStock.setCellValueFactory(new PropertyValueFactory<>("quantiteDisponible"));
+        colProdPrix.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.1f TND", cell.getValue().getProduit().getPrixVente())));
+
+        colProdAction.setCellFactory(param -> new TableCell<>() {
+            private final Button btnAdd = new Button("+");
+            {
+                btnAdd.setStyle("-fx-background-color: #0d9488; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+                btnAdd.setOnAction(e -> addToCart(getTableView().getItems().get(getIndex())));
+            }
+            @Override protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnAdd);
+            }
+        });
+    }
+
+    // panier
+    private void setupPanierTable() {
+        tablePanier.setItems(panier);
+        colPanierNom.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduit().getNom()));
+        colPanierQte.setCellValueFactory(new PropertyValueFactory<>("quantite"));
+        colPanierTotal.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.1f", cell.getValue().getSousTotal())));
+
+        colPanierAction.setCellFactory(param -> new TableCell<>() {
+            private final Button btnRem = new Button("✖");
+            {
+                btnRem.setStyle("-fx-text-fill: red; -fx-background-color: transparent; -fx-font-weight: bold; -fx-cursor: hand;");
+                btnRem.setOnAction(e -> removeFromCart(getTableView().getItems().get(getIndex())));
+            }
+            @Override protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnRem);
+            }
+        });
+    }
+
+
+    private void addToCart(Stock stockItem) {
+        if (stockItem.getQuantiteDisponible() <= 0) return;
+
+
+        for (LigneVente lv : panier) {
+            if (lv.getProduit().getId() == stockItem.getProduit().getId()) {
+                if (lv.getQuantite() < stockItem.getQuantiteDisponible()) {
+                    lv.setQuantite(lv.getQuantite() + 1);
+                    tablePanier.refresh();
+                    updateTotal();
+                }
+                return;
+            }
+        }
+
+        int tempId = (int) (System.currentTimeMillis() & 0xfffffff); 
+        
+        LigneVente newLine = new LigneVente(
+            tempId, stockItem.getProduit(), 1
+        );
+        panier.add(newLine);
+        updateTotal();
+    }
+
+    private void removeFromCart(LigneVente line) {
+        panier.remove(line);
+        updateTotal();
+    }
+
+    private void updateTotal() {
+        double total = panier.stream().mapToDouble(LigneVente::getSousTotal).sum();
+        lblTotal.setText(String.format("%.3f TND", total));
+    }
+
+    private void setupSearch() {
+        txtSearch.textProperty().addListener((obs, old, newVal) -> {
+            filteredStock.setPredicate(s -> newVal == null || newVal.isEmpty() || 
+                s.getProduit().getNom().toLowerCase().contains(newVal.toLowerCase()));
+        });
+    }
+
+    @FXML
+    private void handleValider(ActionEvent event) {
+        if (panier.isEmpty()) return;
+
+        try {
+            Client client = cmbClient.getValue();
+            if (client == null && !DataService.getClients().isEmpty()) {
+                 client = DataService.getClients().get(0);
+            }
+
+
+            Vente vente = new Vente(0, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), 0.0);
+            for (LigneVente lv : panier) {
+                vente.addLigne(lv); 
+            }
+
+
+            venteDAO vDao = new venteDAO(application.resources.DatabaseConnection.getConnection());
+            vDao.save(vente);
+            
+
+            DataService.getHistoriqueVentes().setAll(vDao.getAllVentes());
+
+
+            stockDAO sDao = new application.dao.stockDAO(application.resources.DatabaseConnection.getConnection());
+            DataService.getStockGlobal().setAll(sDao.getAllStocks());
+            
+
+            panier.clear();
+            updateTotal();
+            
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Vente validée et sauvegardée !");
+            alert.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur: " + e.getMessage());
+            alert.show();
+        }
+    }
+    
+    @FXML private void handleAnnuler(ActionEvent e) { panier.clear(); updateTotal(); }
 }

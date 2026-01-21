@@ -58,6 +58,11 @@ public class UI_Controller {
     	if(currUtilisateur != null) {
     		lblWelcome.setText("@" + currUtilisateur.getUsername());
 
+    		if (!currUtilisateur.estAdmin()) {
+                btnDashboard.setVisible(false);
+                btnDashboard.setManaged(false);
+            }
+    		
             Label warmwelcome = new Label("Bonjour, " + currUtilisateur.getNom());
             warmwelcome.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
             contentArea.getChildren().add(warmwelcome);

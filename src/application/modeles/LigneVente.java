@@ -7,7 +7,18 @@ public class LigneVente {
     private int quantite;
     private double prixUnitaire;
 
-    public LigneVente(Produit produit, int quantite) {
+    
+    public LigneVente(int id, Produit produit, int quantite) {
+    	this.id = id;
+    	this.vente = null;
+        this.produit = produit;
+        this.quantite = quantite;
+        this.prixUnitaire = produit.getPrixVente();
+    }
+    
+    public LigneVente(int id, Vente vente, Produit produit, int quantite) {
+    	this.id = id;
+    	this.vente = vente;
         this.produit = produit;
         this.quantite = quantite;
         this.prixUnitaire = produit.getPrixVente();

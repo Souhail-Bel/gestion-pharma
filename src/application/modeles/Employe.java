@@ -30,7 +30,7 @@ public class Employe {
 		}
 	}
 	
-	
+	public int getId() {return id;}
 	public String getNom() {return nom;}
 	public String getPrenom() {return prenom;}
 	public String getUsername() {return username;}

@@ -24,21 +24,20 @@ public class HistoriqueController {
     @FXML private TableColumn<Vente, Integer> colId;
     @FXML private TableColumn<Vente, String> colDate;
     @FXML private TableColumn<Vente, String> colClient;
-    @FXML private TableColumn<Vente, Double> colTotal;
+    @FXML private TableColumn<Vente, String> colTotal; // Changed to String for currency formatting
 
     // table details
     @FXML private Label lblDetailInfo;
     @FXML private TableView<LigneVente> tableDetails;
     @FXML private TableColumn<LigneVente, String> colDetProduit;
     @FXML private TableColumn<LigneVente, Integer> colDetQte;
-    @FXML private TableColumn<LigneVente, Double> colDetTotal;
+    @FXML private TableColumn<LigneVente, String> colDetTotal; // Changed to String for currency formatting
     
     @FXML private DatePicker datePickerStart;
     @FXML private DatePicker datePickerEnd;
     @FXML private TextField txtSearchClient;
     
     private FilteredList<Vente> filteredData;
-
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @FXML
@@ -47,13 +46,14 @@ public class HistoriqueController {
         setupDetailsTable();
 
         // charger histroique
-        //tableVentes.setItems(DataService.getHistoriqueVentes());
         filteredData = new FilteredList<>(DataService.getHistoriqueVentes(), p -> true);
         
+        // Listeners for filters
         txtSearchClient.textProperty().addListener((obs, oldVal, newVal) -> miseAJourFiltre());
         datePickerStart.valueProperty().addListener((obs, oldVal, newVal) -> miseAJourFiltre());
         datePickerEnd.valueProperty().addListener((obs, oldVal, newVal) -> miseAJourFiltre());
         
+        // Wrap filtered list in sorted list
         SortedList<Vente> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tableVentes.comparatorProperty());
         
@@ -66,60 +66,70 @@ public class HistoriqueController {
     }
 
     private void setupProduitsTable() {
-    	
-        colId.setCellValueFactory(cell ->
-        new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getId()));
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        
         colDate.setCellValueFactory(cell -> 
             new SimpleStringProperty(cell.getValue().getDate().format(fmt)));
+            
         colClient.setCellValueFactory(cell -> 
-            new SimpleStringProperty(cell.getValue().getClient().getNom()));
+            new SimpleStringProperty(cell.getValue().getClient() != null ? cell.getValue().getClient().getNom() : "Anonyme"));
+            
         colTotal.setCellValueFactory(cell ->
-        new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getTotal()));
+            new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getTotal())));
     }
 
     private void setupDetailsTable() {
-        colDetProduit.setCellValueFactory(new PropertyValueFactory<>("nomProduit"));
+        // Fixed: Use Lambda to access nested Product object safely
+        colDetProduit.setCellValueFactory(cell -> 
+            new SimpleStringProperty(cell.getValue().getProduit().getNom()));
+            
         colDetQte.setCellValueFactory(new PropertyValueFactory<>("quantite"));
-        colDetTotal.setCellValueFactory(new PropertyValueFactory<>("sousTotal"));
+        
+        colDetTotal.setCellValueFactory(cell -> 
+            new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getSousTotal())));
     }
 
     private void showDetails(Vente vente) {
         if (vente != null) {
-            lblDetailInfo.setText("Client : " + vente.getClient().getNom() + 
-                                  "\nVendu par : " + vente.getEmploye().getNom());
+            String employeName = (vente.getEmploye() != null) ? vente.getEmploye().getUsername() : "Inconnu";
+            String clientName = (vente.getClient() != null) ? vente.getClient().getNom() : "Anonyme";
+            
+            lblDetailInfo.setText("Client : " + clientName + "\nVendu par : " + employeName);
             tableDetails.getItems().setAll(vente.getLignes());
         } else {
-            lblDetailInfo.setText("");
+            lblDetailInfo.setText("Sélectionnez une vente...");
             tableDetails.getItems().clear();
         }
     }
     
     @FXML
     private void handleClearFilters() {
-    	txtSearchClient.clear();
-    	datePickerStart.setValue(null);
-    	datePickerEnd.setValue(null);
+        txtSearchClient.clear();
+        datePickerStart.setValue(null);
+        datePickerEnd.setValue(null);
     }
     
     private void miseAJourFiltre() {
-    	filteredData.setPredicate(vente -> {
-    		// par client
-    		String query = txtSearchClient.getText();
-    		if(query != null && !query.isEmpty()) {
-    			if(!vente.getClient().getNom().toLowerCase().contains(query))
-    				return false;
-    		}
-    		
-    		// par periode
-    		LocalDate dateVente = vente.getDate().toLocalDate();
-    		
-    		if(datePickerStart.getValue() != null && dateVente.isBefore(datePickerStart.getValue()))
-    			return false;
-    		
-    		if(datePickerEnd.getValue() != null && dateVente.isAfter(datePickerEnd.getValue()))
-    			return false;
-    		
-    		return true;
-    	});
+        filteredData.setPredicate(vente -> {
+            // par client
+            String query = txtSearchClient.getText();
+            if(query != null && !query.isEmpty()) {
+                String clientName = vente.getClient() != null ? vente.getClient().getNom().toLowerCase() : "";
+                if(!clientName.contains(query.toLowerCase()))
+                    return false;
+            }
+            
+            // par periode
+            if (vente.getDate() == null) return false;
+            LocalDate dateVente = vente.getDate().toLocalDate();
+            
+            if(datePickerStart.getValue() != null && dateVente.isBefore(datePickerStart.getValue()))
+                return false;
+            
+            if(datePickerEnd.getValue() != null && dateVente.isAfter(datePickerEnd.getValue()))
+                return false;
+            
+            return true;
+        });
     }
 }

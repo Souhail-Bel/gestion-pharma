@@ -9,7 +9,7 @@ public class DatabaseConnection {
     private static final String DB_NAME = System.getProperty("db.name", "gestion_pharma");
     private static final String URL = "jdbc:mysql://localhost:3306/pharmacie";
     private static final String USER = "root";
-    private static final String PASSWORD = "Konoyaro225*";
+    private static final String PASSWORD = "golden ratio 1.618";
 
     // Private constructor to prevent object creation
     private DatabaseConnection() {}

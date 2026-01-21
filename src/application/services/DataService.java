@@ -66,6 +66,6 @@ public class DataService {
 			fournisseurs.add(f);
 		}
 		
-		clients.add(new Client(0, "Anonyme", "",""));
+		clients.add(new Client(0, "Anonyme", ""));
 	}
 }

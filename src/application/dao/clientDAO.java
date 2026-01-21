@@ -22,7 +22,6 @@ public class clientDAO {
                 return new Client(
                         rs.getInt("id"),
                         rs.getString("nom"),
-                        rs.getString("prenom"),
                         rs.getString("telephone")
 
                 );

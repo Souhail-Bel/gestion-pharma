@@ -14,7 +14,7 @@ public class test {
             clientDAO cdao= new clientDAO(conn);
             Client client = cdao.FindByID(1);
             if (client != null) {
-                System.out.println("Client trouvé : " + client.getNom() + " " + client.getPrenom());
+                System.out.println("Client trouvé : " + client.getNom() );
             } else {
                 System.out.println("Client non trouvé.");
             }

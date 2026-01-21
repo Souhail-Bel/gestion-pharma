@@ -23,4 +23,8 @@ public class Produit {
 	public String toString() {
 		return nom;
 	}
+	
+	public void setNom(String nom) { this.nom = nom; }
+	public void setPrixVente(double prixVente) { this.prixVente = prixVente; }
+	public void setSeuilMinimal(int seuilMinimal) { this.seuilMinimal = seuilMinimal; }
 }

@@ -18,6 +18,7 @@ public class Client {
     public String getTelephone() { return telephone; }
     public String getPrenom() { return prenom; }
 
+    
     @Override
     public String toString() { return nom; }
 }

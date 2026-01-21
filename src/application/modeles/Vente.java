@@ -4,6 +4,7 @@ import application.dao.clientDAO;
 import application.resources.DatabaseConnection;
 
 import java.sql.SQLException;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,4 +33,11 @@ public class Vente {
     }
 
 
+    public int getId() {return id;}
+	public LocalDateTime getDate() { return date; }
+	public Client getClient() {return client;}
+	public Employe getEmploye() { return employe; }
+	public double getTotal() {return total;}
+	public List<LigneVente> getLignes() { return lignes; }
+    
 }

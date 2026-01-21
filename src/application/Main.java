@@ -6,21 +6,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import application.modeles.Employe;
-import application.views.UI_Controller;
-
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("/application/views/MainLayout.fxml"));
-			UI_Controller.setUtilisateur(
-				new Employe(0, "Akrem", "Medimagh", "cool_chair_1", "Password132", "employe")
-			);
-			Scene scene = new Scene(root);
+			Parent root = FXMLLoader.load(getClass().getResource("/application/views/LoginLayout.fxml"));
 			
-			primaryStage.setTitle("Application Pharmacie");
+			Scene scene = new Scene(root);
+			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			
+			primaryStage.setTitle("Application Pharma | Connexion");
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch (Exception e) {

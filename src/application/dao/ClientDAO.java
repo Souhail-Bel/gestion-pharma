@@ -34,6 +34,25 @@ public class ClientDAO {
             }
         }
     }
+
+    public Client findByTelephone(String telephone) throws SQLException {
+        String query = "SELECT * FROM CLIENT WHERE telephone = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, telephone);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return new Client(
+                    rs.getInt("id"),
+                    rs.getString("nom"),
+                    rs.getString("prenom"),
+                    rs.getString("telephone")
+                );
+            }
+        }
+        return null;
+    }
     
     public ArrayList<Client> getAllClients() throws SQLException {
         ArrayList<Client> list = new ArrayList<>();

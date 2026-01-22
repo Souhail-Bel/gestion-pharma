@@ -28,6 +28,7 @@ public class LigneVente {
         return prixUnitaire * quantite;
     }
 
+    public int getProduitId() { return produit.getId(); }
     public String getNomProduit() { return produit.getNom(); }
     public double getPrixUnitaire() { return prixUnitaire; }
     public int getQuantite() { return quantite; }

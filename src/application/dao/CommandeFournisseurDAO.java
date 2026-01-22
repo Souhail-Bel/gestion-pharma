@@ -4,6 +4,8 @@ import application.modeles.CommandeFournisseur;
 import application.modeles.Fournisseur;
 import application.modeles.LigneCommandeFournisseur;
 import application.modeles.Produit;
+import application.modeles.StatutCommande;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,4 +106,15 @@ public class CommandeFournisseurDAO {
         }
         saveLignes(cmd.getLignes(), cmd.getId());
     }
+    
+    public void updateStatut(int id, StatutCommande statut) throws SQLException {
+        String query = "UPDATE COMMANDE_FOURNISSEUR SET statut = ? WHERE id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, statut.toString());
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+        }
+    }
+    
 }

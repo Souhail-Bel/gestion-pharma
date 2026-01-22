@@ -33,6 +33,8 @@ public class NouvelleCommandeController {
     @FXML private TableColumn<LigneCommandeFournisseur, Void> colAction;
 
     private final ObservableList<LigneCommandeFournisseur> panierList = FXCollections.observableArrayList();
+    
+    private CommandeFournisseur currCf = null;
 
     @FXML
     public void initialize() {
@@ -59,6 +61,26 @@ public class NouvelleCommandeController {
         colPanierPrix.setCellValueFactory(new PropertyValueFactory<>("prixAchat"));
         setupDeleteButton();
     }
+    
+    
+    public void initData(CommandeFournisseur cf) {
+    	if(cf != null) {
+    		this.currCf = cf;
+    		
+    		lblTitle.setText("Modifier Commande #" + cf.getId());
+    		
+    		comboFournisseur.getItems().stream()
+    			.filter(f -> f.getId() == cf.getFournisseur().getId())
+    			.findFirst()
+    			.ifPresent(comboFournisseur::setValue);
+    		
+    		
+    		for(LigneCommandeFournisseur lc : cf.getLignes())
+    			panierList.add(new LigneCommandeFournisseur(null, lc.getProduit(), lc.getQuantite(), lc.getPrixAchat()));
+    		
+    	}
+    }
+    
 
     @FXML
     void handleAjouterLigne(ActionEvent e) {
@@ -90,10 +112,26 @@ public class NouvelleCommandeController {
         }
         try {
         	CommandeFournisseurDAO cfDao = new CommandeFournisseurDAO(DatabaseConnection.getConnection());
-        	int newId = cfDao.taille()+1;
-            CommandeFournisseur cmd = new CommandeFournisseur(newId, comboFournisseur.getValue(), LocalDateTime.now(), "CREATED");
-            cmd.getLignes().addAll(panierList);
-            cfDao.save(cmd);
+        	
+        	
+        	if(currCf == null) {
+        		int newId = cfDao.taille()+1;
+                CommandeFournisseur cmd = new CommandeFournisseur(newId, comboFournisseur.getValue(), LocalDateTime.now(), "CREATED");
+                cmd.getLignes().addAll(panierList);
+                cfDao.save(cmd);
+        	} else { // edit
+        		currCf.setFournisseur(comboFournisseur.getValue());
+        		currCf.getLignes().clear();
+        		currCf.getLignes().addAll(panierList);
+        		
+        		if(currCf.getStatut() == StatutCommande.CREATED)
+        			currCf.setStatut(StatutCommande.MODIFIED);
+        		
+        		cfDao.update(currCf);
+        		
+        	}
+        	
+        	
             DataService.refreshCommandesFournisseur();
             close();
         } catch (SQLException ex) {

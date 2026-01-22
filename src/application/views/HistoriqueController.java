@@ -86,7 +86,7 @@ public class HistoriqueController {
         colDetQte.setCellValueFactory(new PropertyValueFactory<>("quantite"));
         
         colDetTotal.setCellValueFactory(cell -> 
-            new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getSousTotal())));
+            new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getPrixUnitaire())));
     }
 
     private void showDetails(Vente vente) {

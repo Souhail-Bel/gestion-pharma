@@ -3,9 +3,11 @@ package application.views;
 import application.dao.ClientDAO;
 import application.dao.StockDAO;
 import application.dao.VenteDAO;
+import application.exceptions.StockInsuffisantException;
 import application.modeles.*;
 import application.resources.DatabaseConnection;
 import application.services.DataService;
+import application.services.StockMoniteur;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,8 +20,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class VenteController {
 
@@ -58,7 +62,7 @@ public class VenteController {
         
 
         cmbClient.setConverter(new StringConverter<Client>() {
-            @Override public String toString(Client c) { return c == null ? "" : c.getNom(); }
+            @Override public String toString(Client c) { return c == null ? "" : (c.getNom() + " " + c.getPrenom()); }
             @Override public Client fromString(String string) { return null; }
         });
 
@@ -87,6 +91,8 @@ public class VenteController {
 
         Label lblError = new Label();
         lblError.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+        lblError.setWrapText(true); // erreur multi-lignes
+        lblError.setMaxWidth(Double.MAX_VALUE);
 
         GridPane grid = new GridPane();
         grid.setHgap(10); grid.setVgap(10); grid.setPadding(new Insets(20));
@@ -97,9 +103,11 @@ public class VenteController {
         grid.add(txtPrenom, 1, 1);
         grid.add(new Label("Tél :"), 0, 2); 
         grid.add(txtTel, 1, 2);
-        grid.add(lblError, 1, 3);
+        grid.add(lblError, 0, 3, 2, 1);
         
         dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().setPrefWidth(300); 
+        dialog.setResizable(true);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
 
@@ -130,8 +138,31 @@ public class VenteController {
                 ae.consume(); 
                 return;
             }
+            
+            
+            // verifier dupliqué selon tele
+            try {
+                ClientDAO tempDao = new ClientDAO(DatabaseConnection.getConnection());
+                Client existant = tempDao.findByTelephone(phone);
+                
+                if (existant != null) {
+                    txtTel.setStyle("-fx-border-color: red;");
+                    lblError.setText("Ce numéro de téléphone existe déjà (" + existant.getNom() + " " + existant.getPrenom() + ").");
+                    
+                    dialog.getDialogPane().getScene().getWindow().sizeToScene();
+                    
+                    ae.consume();
+                    return;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                lblError.setText("Erreur de connexion base de données.");
+                ae.consume();
+            }
         });
 
+        
+        
 
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
@@ -247,42 +278,71 @@ public class VenteController {
     private void handleValider(ActionEvent event) {
         if (panier.isEmpty()) return;
 
-        try {
-            Client client = cmbClient.getValue();
-            if (client == null && !DataService.getClients().isEmpty())
-                 client = DataService.getClients().get(0);
-
-            
-            VenteDAO vDao = new VenteDAO(application.resources.DatabaseConnection.getConnection());
-            int newId = vDao.taille() + 1;
-            double total = panier.stream().mapToDouble(LigneVente::getSousTotal).sum();
-            Vente vente = new Vente(newId, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), total);
-            for (LigneVente lv : panier)
-                vente.addLigne(lv);
-            vDao.save(vente);
-
-            DataService.getHistoriqueVentes().setAll(vDao.getAllVentes());
-
-
-            StockDAO sDao = new application.dao.StockDAO(application.resources.DatabaseConnection.getConnection());
-            DataService.getStockGlobal().setAll(sDao.getAllStocks());
-            
-
-            updateTotal();
-            panier.clear();
-            
-            DataService.refreshStocks();
-            DataService.refreshVentes();
-            
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Vente validée et sauvegardée !");
-            alert.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur: " + e.getMessage());
-            alert.show();
+        Client client = cmbClient.getValue();
+        
+        if (client == null) {
+        	new Alert(Alert.AlertType.ERROR, "Veuillez sélectionner un client.").show();
+            return;
         }
+
+        Thread transactionThread = new Thread(() -> {
+        	
+        	try { StockMoniteur.P(); }
+        	catch (InterruptedException e) {
+        		e.printStackTrace();
+        		return;
+        	}
+        	
+        	
+        	// SECTION CRITIQUE
+        	try {
+        		Connection conn = DatabaseConnection.getConnection();
+        		
+        		VenteDAO vDao = new VenteDAO(conn);
+        		StockDAO sDao = new StockDAO(conn);
+        		
+        		
+        		// verifier stock
+        		for(LigneVente lv : panier) {
+        			int currStock  = sDao.getQuantiteProduit(lv.getProduitId());
+        			if (currStock < lv.getQuantite())
+        				throw new StockInsuffisantException("Stock insuffisant: " + lv.getNomProduit());
+        		}
+        		
+        		int newID = vDao.taille() + 1;
+        		double total = panier.stream()
+        							.mapToDouble(LigneVente::getSousTotal).sum();
+        		Vente vente = new Vente(newID, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), total);
+        		for (LigneVente lv : panier) vente.addLigne(lv);
+        		
+        		vDao.save(vente);
+        		
+
+        		
+        		// mis a jour
+        		ArrayList<Vente> venteTous = vDao.getAllVentes();
+        		ArrayList<Stock> stockTous = sDao.getAllStocks();
+        		javafx.application.Platform.runLater(() -> {
+                    DataService.getHistoriqueVentes().setAll(venteTous);
+                    DataService.getStockGlobal().setAll(stockTous);
+                    updateTotal();
+                    panier.clear();
+                    new Alert(Alert.AlertType.INFORMATION, "Vente validée !").show();
+                });
+        		
+        	} catch(Exception e) {
+        		javafx.application.Platform.runLater(() -> {
+        			new Alert(Alert.AlertType.ERROR, "Erreur: " + e.getMessage()).show();
+        		});
+        	} finally {
+        		StockMoniteur.V();
+        	}
+        });
+        
+        transactionThread.start();
     }
     
     @FXML private void handleAnnuler(ActionEvent e) { panier.clear(); updateTotal(); }
+    
+    
 }

@@ -14,8 +14,13 @@ public class LigneCommandeFournisseur {
     }
 	
 	public Produit getProduit() {return produit;}
+	public String getProduitNom() {
+		if(produit == null) return "";
+		return produit.getNom();
+	}
 	public double getPrixAchat() {return prixAchat;}
 	public int getQuantite() {return quantite; }
+	public double getSousTotal() {return quantite*prixAchat;}
 
 
 	public void setCommande(CommandeFournisseur cmd) {

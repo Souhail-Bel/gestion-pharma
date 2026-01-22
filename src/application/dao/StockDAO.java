@@ -68,12 +68,32 @@ public class StockDAO {
             return null;
         }
     }
+    
+    public int getQuantiteProduit(int prodId) throws SQLException {
+        String query = "SELECT quantiteDisponible FROM STOCK WHERE produit_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, prodId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        }
+        return 0;
+    }
 
     public void update(Stock stock) throws SQLException {
         String query = "UPDATE STOCK SET quantiteDisponible = ? WHERE produit_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, stock.getQuantiteDisponible());
             stmt.setInt(2, stock.getProduit().getId());
+            stmt.executeUpdate();
+        }
+    }
+
+    public void augmenter(int produitId, int quantiteAjoutee) throws SQLException {
+        String query = "UPDATE STOCK SET quantiteDisponible = quantiteDisponible + ? WHERE produit_id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, quantiteAjoutee);
+            stmt.setInt(2, produitId);
             stmt.executeUpdate();
         }
     }

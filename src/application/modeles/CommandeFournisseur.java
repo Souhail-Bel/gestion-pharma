@@ -28,6 +28,10 @@ public class CommandeFournisseur {
 
 	public int getId() { return id; }
 	public Fournisseur getFournisseur() {return fournisseur;}
+	public String getFournisseurNom() {
+		if(fournisseur == null) return "";
+		return fournisseur.getNom();
+	}
 	public LocalDateTime getDate() {return date;}
 	public StatutCommande getStatut() {return statut;}
 	public List<LigneCommandeFournisseur> getLignes() {return lignes;}

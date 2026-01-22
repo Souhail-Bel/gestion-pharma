@@ -5,6 +5,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -30,7 +32,19 @@
          </padding>
          <children>
             <TextField fx:id="txtUser" promptText="Nom d'utilisateur" style="-fx-background-radius: 5; -fx-padding: 10;" />
-            <PasswordField fx:id="txtPass" promptText="Mot de passe" style="-fx-background-radius: 5; -fx-padding: 10;" />
+            <StackPane alignment="CENTER_RIGHT">
+   <children>
+      <TextField fx:id="txtPassVisible" promptText="Mot de passe" visible="false" style="-fx-background-radius: 5; -fx-padding: 10;" />
+      
+      <PasswordField fx:id="txtPass" promptText="Mot de passe" style="-fx-background-radius: 5; -fx-padding: 10;" />
+      
+      <javafx.scene.control.ToggleButton fx:id="btnEye" focusTraversable="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="👁">
+         <StackPane.margin>
+            <Insets right="5.0" />
+         </StackPane.margin>
+      </javafx.scene.control.ToggleButton>
+   </children>
+</StackPane>
 
             <Button fx:id="btnLogin" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-cursor: hand;" text="SE CONNECTER">
                <font>

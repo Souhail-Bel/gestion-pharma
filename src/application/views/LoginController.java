@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 
 public class LoginController {
@@ -22,6 +23,9 @@ public class LoginController {
     @FXML private Label lblError;
     @FXML private Button btnLogin;
 
+    @FXML private TextField txtPassVisible;
+    @FXML private ToggleButton btnEye;
+    
     private AuthService authService;
 
     public LoginController() {
@@ -40,6 +44,28 @@ public class LoginController {
             txtPass.setStyle("");
             lblError.setVisible(false);
         });
+        
+        
+        txtPassVisible.textProperty().bindBidirectional(txtPass.textProperty());
+        
+        btnEye.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            if (isSelected) {
+                txtPassVisible.setVisible(true);
+                txtPass.setVisible(false);
+                btnEye.setText("");
+            } else {
+                txtPassVisible.setVisible(false);
+                txtPass.setVisible(true);
+                btnEye.setText("👁");
+            }
+        });
+        
+        txtPassVisible.textProperty().addListener((obs, old, neu) -> {
+            txtPassVisible.setStyle(""); 
+            txtPass.setStyle("");
+            lblError.setVisible(false);
+        });
+        
     }
 
     @FXML
@@ -68,7 +94,9 @@ public class LoginController {
                 txtUser.setStyle(errorStyle);
                 txtUser.requestFocus();
             } else if (msg.toLowerCase().contains("passe")) {
-                txtPass.setStyle(errorStyle);
+                if (txtPass.isVisible()) txtPass.setStyle(errorStyle);
+                else txtPassVisible.setStyle(errorStyle);
+                
                 txtPass.requestFocus();
             } else {
                 txtUser.setStyle(errorStyle);

@@ -146,6 +146,10 @@
     -fx-padding: 4 0 4 0;
 }
 
+.table-row-cell:odd {
+    -fx-background-color: #f6f8ff;
+}
+
 .table-row-cell:hover {
     -fx-background-color: #f1f5f9;
 }

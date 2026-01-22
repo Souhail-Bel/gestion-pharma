@@ -52,7 +52,7 @@ public class LoginController {
             if (isSelected) {
                 txtPassVisible.setVisible(true);
                 txtPass.setVisible(false);
-                btnEye.setText("");
+                btnEye.setText("👁");
             } else {
                 txtPassVisible.setVisible(false);
                 txtPass.setVisible(true);

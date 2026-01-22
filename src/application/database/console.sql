@@ -3,7 +3,7 @@ CREATE DATABASE Pharmacie;
 USE Pharmacie;
 
 
-
+DROP USER IF EXISTS 'pharma_user'@'localhost';
 CREATE USER 'pharma_user'@'localhost' IDENTIFIED BY 'securepass';
 GRANT ALL PRIVILEGES ON Pharmacie.* TO 'pharma_user'@'localhost';
 FLUSH PRIVILEGES;

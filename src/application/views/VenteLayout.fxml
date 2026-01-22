@@ -17,14 +17,14 @@
    <children>
       <SplitPane dividerPositions="0.55" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" style="-fx-background-color: #F4F7F6;">
+          <AnchorPane minHeight="0.0" minWidth="0.0" style="-fx-background-color: #FAFAFA;">
                <children>
                   <VBox spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
                      <children>
                         <Label text="Catalogue Produits" textFill="#00796b"><font><Font name="System Bold" size="20.0" /></font></Label>
-                        <TextField fx:id="txtSearch" promptText="🔍 Rechercher..." style="-fx-background-radius: 5; -fx-padding: 8;" />
-                        <TableView fx:id="tableProduits" VBox.vgrow="ALWAYS">
+                        <TextField fx:id="txtSearch" promptText="🔍 Rechercher..." style="-fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #E0E0E0; -fx-border-radius: 10;" />
+                        <TableView fx:id="tableProduits" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
                           <columns>
                             <TableColumn fx:id="colProdNom" prefWidth="150.0" text="Produit" />
                             <TableColumn fx:id="colProdStock" prefWidth="75.0" text="Stock" />
@@ -44,13 +44,13 @@
                      <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
                      <children>
                         
-                        <VBox spacing="5.0" style="-fx-background-color: #e0f2f1; -fx-padding: 10; -fx-background-radius: 5;">
+                        <VBox spacing="5.0" style="-fx-background-color: #E8F5E9; -fx-padding: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);">
                            <children>
                               <Label text="Client" textFill="#004d40"><font><Font name="System Bold" size="12.0" /></font></Label>
                               <HBox spacing="10.0">
                                  <children>
-                                    <ComboBox fx:id="cmbClient" maxWidth="1.7976931348623157E308" promptText="Sélectionner un client..." HBox.hgrow="ALWAYS" />
-                                    <Button onAction="#handleAjoutClient" style="-fx-background-color: #00796B; -fx-text-fill: white;" text="+" />
+                                    <ComboBox fx:id="cmbClient" maxWidth="1.7976931348623157E308" promptText="Sélectionner un client..." HBox.hgrow="ALWAYS" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
+                                    <Button onAction="#handleAjoutClient" style="-fx-background-color: linear-gradient(to bottom, #00796B, #004D40); -fx-text-fill: white; -fx-background-radius: 8;" text="+" />
                                  </children>
                               </HBox>
                            </children>
@@ -58,7 +58,7 @@
                         
                         <Label text="Panier en cours" textFill="#37474f"><font><Font name="System Bold" size="20.0" /></font></Label>
                         
-                        <TableView fx:id="tablePanier" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="tablePanier" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
                           <columns>
                             <TableColumn fx:id="colPanierNom" prefWidth="120.0" text="Produit" />
                             <TableColumn fx:id="colPanierQte" prefWidth="60.0" text="Qté" />
@@ -69,7 +69,7 @@
                            <placeholder><Label text="Panier vide" textFill="#cfd8dc" /></placeholder>
                         </TableView>
                         
-                        <HBox alignment="CENTER_RIGHT" spacing="10.0" style="-fx-background-color: #f1f5f9; -fx-padding: 10; -fx-background-radius: 5;">
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" style="-fx-background-color: #F1F5F9; -fx-padding: 10; -fx-background-radius: 10;">
                            <children>
                               <Label text="TOTAL :" textFill="#64748b"><font><Font name="System Bold" size="14.0" /></font></Label>
                               <Label fx:id="lblTotal" text="0.000 TND" textFill="#0f172a"><font><Font name="System Bold" size="24.0" /></font></Label>
@@ -78,10 +78,10 @@
                         
                         <HBox spacing="10.0">
                            <children>
-                              <Button cancelButton="true" maxWidth="1.7976931348623157E308" onAction="#handleAnnuler" style="-fx-background-color: #ef4444; -fx-text-fill: white;" text="Annuler" HBox.hgrow="ALWAYS">
+                              <Button cancelButton="true" maxWidth="1.7976931348623157E308" onAction="#handleAnnuler" style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 10;" text="Annuler" HBox.hgrow="ALWAYS">
                                  <padding><Insets bottom="10.0" top="10.0" /></padding>
                               </Button>
-                              <Button fx:id="btnValider" defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#handleValider" style="-fx-background-color: #0d9488; -fx-text-fill: white;" text="VALIDER" HBox.hgrow="ALWAYS">
+                              <Button fx:id="btnValider" defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#handleValider" style="-fx-background-color: linear-gradient(to bottom, #0D9488, #00695C); -fx-text-fill: white; -fx-background-radius: 10;" text="VALIDER" HBox.hgrow="ALWAYS">
                                  <padding><Insets bottom="10.0" top="10.0" /></padding>
                                  <font><Font name="System Bold" size="14.0" /></font>
                               </Button>

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="20.0" style="-fx-background-color: #E0F2F1;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.LoginController">
+<VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="20.0" style="-fx-background-color: linear-gradient(to bottom, #E0F2F1, #B2DFDB);" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.LoginController">
    <children>
       <Label text="Pharma Gestion" textFill="#00796b">
          <font>
@@ -26,17 +26,17 @@
          </VBox.margin>
       </Label>
 
-      <VBox alignment="CENTER" maxWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+      <VBox alignment="CENTER" maxWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0.2, 0, 5);">
          <padding>
             <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
          </padding>
          <children>
-            <TextField fx:id="txtUser" promptText="Nom d'utilisateur" style="-fx-background-radius: 5; -fx-padding: 10;" />
+            <TextField fx:id="txtUser" promptText="Nom d'utilisateur" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #E0E0E0; -fx-border-radius: 10;" />
             <StackPane alignment="CENTER_RIGHT">
    <children>
-      <TextField fx:id="txtPassVisible" promptText="Mot de passe" visible="false" style="-fx-background-radius: 5; -fx-padding: 10;" />
+      <TextField fx:id="txtPassVisible" promptText="Mot de passe" visible="false" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #E0E0E0; -fx-border-radius: 10;" />
       
-      <PasswordField fx:id="txtPass" promptText="Mot de passe" style="-fx-background-radius: 5; -fx-padding: 10;" />
+      <PasswordField fx:id="txtPass" promptText="Mot de passe" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #E0E0E0; -fx-border-radius: 10;" />
       
       <javafx.scene.control.ToggleButton fx:id="btnEye" focusTraversable="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="👁">
          <StackPane.margin>
@@ -46,7 +46,7 @@
    </children>
 </StackPane>
 
-            <Button fx:id="btnLogin" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-cursor: hand;" text="SE CONNECTER">
+            <Button fx:id="btnLogin" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" style="-fx-background-color: linear-gradient(to bottom, #00796B, #004D40); -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 10;" text="SE CONNECTER">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>

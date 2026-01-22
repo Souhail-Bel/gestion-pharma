@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefWidth="400.0" spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #00796B; -fx-border-width: 2;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.AjoutProduitController">
+<VBox prefWidth="400.0" spacing="15.0" style="-fx-background-color: linear-gradient(to bottom, white, #F5F5F5); -fx-padding: 20; -fx-border-color: #E0E0E0; -fx-border-width: 1; -fx-background-radius: 15; -fx-border-radius: 15;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.AjoutProduitController">
    <children>
       <Label fx:id="lblTitle" text="Nouveau Produit" textFill="#00796b">
          <font>
@@ -36,16 +36,16 @@
         </rowConstraints>
          <children>
             <Label text="Nom du médicament :" wrapText="true" GridPane.valignment="TOP" />
-            <TextField fx:id="txtNom" promptText="Ex: Doliprane 1000mg" GridPane.columnIndex="1" />
+            <TextField fx:id="txtNom" promptText="Ex: Doliprane 1000mg" GridPane.columnIndex="1" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
             
             <Label text="Prix de Vente (TND) :" GridPane.rowIndex="1" />
-            <TextField fx:id="txtPrix" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="txtPrix" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
             
             <Label text="Stock Initial :" GridPane.rowIndex="2" />
-            <Spinner fx:id="spinStock" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Spinner fx:id="spinStock" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
             
             <Label text="Seuil d'alerte :" GridPane.rowIndex="3" />
-            <Spinner fx:id="spinSeuil" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Spinner fx:id="spinSeuil" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
          </children>
       </GridPane>
       
@@ -53,8 +53,8 @@
       
       <HBox alignment="CENTER_RIGHT" spacing="10.0">
          <children>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#handleCancel" text="Annuler" />
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSave" style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-font-weight: bold;" text="Enregistrer" />
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#handleCancel" text="Annuler" style="-fx-background-color: #F5F5F5; -fx-text-fill: #757575; -fx-background-radius: 8;" />
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSave" style="-fx-background-color: linear-gradient(to bottom, #00796B, #004D40); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" text="Enregistrer" />
          </children>
          <padding>
             <Insets top="10.0" />

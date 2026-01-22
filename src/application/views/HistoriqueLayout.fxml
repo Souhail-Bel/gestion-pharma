@@ -29,14 +29,14 @@
                         
                         <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 0 10 10 10;">
                            <children>
-                              <DatePicker fx:id="datePickerStart" prefWidth="110.0" promptText="Du..." />
-                              <DatePicker fx:id="datePickerEnd" prefWidth="110.0" promptText="Au..." />
-                              <TextField fx:id="txtSearchClient" promptText="Nom du client..." HBox.hgrow="ALWAYS" />
-                              <Button onAction="#handleClearFilters" text="Effacer" />
+                              <DatePicker fx:id="datePickerStart" prefWidth="110.0" promptText="Du..." style="-fx-background-radius: 5; -fx-border-color: #E0E0E0; -fx-border-radius: 5;" />
+                              <DatePicker fx:id="datePickerEnd" prefWidth="110.0" promptText="Au..." style="-fx-background-radius: 5; -fx-border-color: #E0E0E0; -fx-border-radius: 5;" />
+                              <TextField fx:id="txtSearchClient" promptText="Nom du client..." HBox.hgrow="ALWAYS" style="-fx-background-radius: 5; -fx-border-color: #E0E0E0; -fx-border-radius: 5;" />
+                              <Button onAction="#handleClearFilters" text="Effacer" style="-fx-background-radius: 5;" />
                            </children>
                         </HBox>
                         
-                        <TableView fx:id="tableVentes" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="tableVentes" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
                           <columns>
                             <TableColumn fx:id="colId" prefWidth="50.0" text="#" />
                             <TableColumn fx:id="colDate" prefWidth="150.0" text="Date" />
@@ -54,7 +54,7 @@
 
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <VBox layoutX="66.0" layoutY="88.0" prefHeight="598.0" prefWidth="356.0" spacing="10.0" style="-fx-padding: 10; -fx-background-color: #F4F7F6;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox layoutX="66.0" layoutY="88.0" prefHeight="598.0" prefWidth="356.0" spacing="10.0" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Détails de la commande">
                            <font>

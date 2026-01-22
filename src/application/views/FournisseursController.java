@@ -260,10 +260,13 @@ public class FournisseursController {
          cProd.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getProduit().getNom()));
          TableColumn<LigneCommandeFournisseur, Integer> cQty = new TableColumn<>("Qté");
          cQty.setCellValueFactory(new PropertyValueFactory<>("quantite"));
+         TableColumn<LigneCommandeFournisseur, String> cPrix = new TableColumn<>("Prix Achat");
+         cPrix.setCellValueFactory(new PropertyValueFactory<>("prixAchat"));
+         TableColumn<LigneCommandeFournisseur, String> cSTotal = new TableColumn<>("S/Total");
+         cSTotal.setCellValueFactory(new PropertyValueFactory<>("sousTotal"));
          
-         tableDetails.getColumns().addAll(cProd, cQty);
+         tableDetails.getColumns().addAll(cProd, cQty, cPrix, cSTotal);
          tableDetails.setItems(FXCollections.observableArrayList(cmd.getLignes()));
-         tableDetails.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
          
          dialog.getDialogPane().setContent(tableDetails);
          dialog.showAndWait();

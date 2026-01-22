@@ -1,31 +1,48 @@
 package application.modeles;
 
 import application.dao.ProduitDAO;
-import java.sql.Connection;
+import application.resources.DatabaseConnection;
 import java.sql.SQLException;
 
 public class Stock {
-    private Produit produit;
-    private int quantiteDisponible;
+  private int produitId;
+  private Produit produit;
 
-    public Stock(int produitID, int quantiteDisponible, Connection conn) throws SQLException {
-        ProduitDAO pdao = new ProduitDAO(conn);
-        this.produit = pdao.findByID(produitID);
-        this.quantiteDisponible = quantiteDisponible;
-    }
+  private int quantiteDisponible;
 
-    public Stock(Produit produit, int quantiteDisponible) {
-        this.produit = produit;
-        this.quantiteDisponible = quantiteDisponible;
-    }
-    
-    public Produit getProduit() { return produit; }
-    
-    public int getQuantiteDisponible() { return quantiteDisponible; }
-    public void setQuantiteDisponible(int quantiteDisponible) { this.quantiteDisponible = quantiteDisponible; }
-    
+  public Stock(int produitId, int quantiteDisponible) {
+    this.produitId = produitId;
+    this.quantiteDisponible = quantiteDisponible;
+  }
 
-    public boolean estLowStock() {
-        return quantiteDisponible <= produit.getSeuilMinimal();
+  public Stock(Produit p, int quantiteDisponible) {
+    this.produitId = (p != null) ? p.getId() : 0;
+    this.produit = p;
+    this.quantiteDisponible = quantiteDisponible;
+  }
+
+  public int getProduitId() { return produitId; }
+  public int getQuantiteDisponible() { return quantiteDisponible; }
+  public void setQuantiteDisponible(int quantiteDisponible) {
+    this.quantiteDisponible = quantiteDisponible;
+  }
+
+  public boolean estLowStock() {
+	  Produit p = getProduit();
+	  if(p == null) return false;
+    return quantiteDisponible <= produit.getSeuilMinimal();
+  }
+
+  public Produit getProduit() {
+    if (produit == null && produitId > 0) {
+      ProduitDAO pDAO;
+      try {
+        pDAO = new ProduitDAO(DatabaseConnection.getConnection());
+        produit = pDAO.findById(produitId);
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
     }
+    return produit;
+  }
 }

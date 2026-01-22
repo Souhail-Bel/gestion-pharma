@@ -8,6 +8,7 @@ import application.modeles.*;
 import application.resources.DatabaseConnection;
 import application.services.DataService;
 import application.services.StockMoniteur;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -175,9 +176,9 @@ public class VenteController {
         dialog.showAndWait().ifPresent(tempClient -> {
             try {
                 ClientDAO cDao = new ClientDAO(DatabaseConnection.getConnection());
-                int newId = cDao.taille() + 1;
+                //int newId = cDao.taille() + 1;
                 
-                Client realClient = new Client(newId, tempClient.getNom(), tempClient.getPrenom(), tempClient.getTelephone());
+                Client realClient = new Client(0, tempClient.getNom(), tempClient.getPrenom(), tempClient.getTelephone());
                 
                 cDao.save(realClient);
                 cmbClient.setValue(realClient);
@@ -238,7 +239,7 @@ public class VenteController {
 
 
         for (LigneVente lv : panier) {
-            if (lv.getProduit().getId() == stockItem.getProduit().getId()) {
+            if (lv.getProduit().getId() == stockItem.getProduitId()) {
                 if (lv.getQuantite() < stockItem.getQuantiteDisponible()) {
                     lv.setQuantite(lv.getQuantite() + 1);
                     tablePanier.refresh();
@@ -309,10 +310,10 @@ public class VenteController {
         				throw new StockInsuffisantException("Stock insuffisant: " + lv.getNomProduit());
         		}
         		
-        		int newID = vDao.taille() + 1;
+        		//int newID = vDao.taille() + 1;
         		double total = panier.stream()
         							.mapToDouble(LigneVente::getSousTotal).sum();
-        		Vente vente = new Vente(newID, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), total);
+        		Vente vente = new Vente(0, LocalDateTime.now(), client.getId(), UI_Controller.getUtilisateur().getId(), total);
         		for (LigneVente lv : panier) vente.addLigne(lv);
         		
         		vDao.save(vente);
@@ -322,7 +323,7 @@ public class VenteController {
         		// mis a jour
         		ArrayList<Vente> venteTous = vDao.getAllVentes();
         		ArrayList<Stock> stockTous = sDao.getAllStocks();
-        		javafx.application.Platform.runLater(() -> {
+        		Platform.runLater(() -> {
                     DataService.getHistoriqueVentes().setAll(venteTous);
                     DataService.getStockGlobal().setAll(stockTous);
                     updateTotal();
@@ -331,7 +332,7 @@ public class VenteController {
                 });
         		
         	} catch(Exception e) {
-        		javafx.application.Platform.runLater(() -> {
+        		Platform.runLater(() -> {
         			new Alert(Alert.AlertType.ERROR, "Erreur: " + e.getMessage()).show();
         		});
         	} finally {

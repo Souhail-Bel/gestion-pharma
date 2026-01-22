@@ -5,9 +5,9 @@ import application.dao.StockDAO;
 import application.modeles.*;
 import application.services.DataService;
 import application.resources.DatabaseConnection;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FournisseursController {
@@ -34,12 +35,13 @@ public class FournisseursController {
     @FXML private TableColumn<CommandeFournisseur, String> colCmdFournisseur;
     @FXML private TableColumn<CommandeFournisseur, String> colCmdTotal;
     @FXML private TableColumn<CommandeFournisseur, String> colCmdStatut;
-    @FXML private TableColumn<CommandeFournisseur, Void> colCmdAction;
+    @FXML private TableColumn<CommandeFournisseur, CommandeFournisseur> colCmdAction;
 
     @FXML private Button btnCmdPrev;
     @FXML private Button btnCmdNext;
     @FXML private Label lblCmdPageInfo;
     @FXML private TextField txtSearchFournisseur;
+    @FXML private TextField txtSearchAnnuaire;
 
     @FXML private TableView<Fournisseur> tableFournisseurs;
     @FXML private TableColumn<Fournisseur, String> colFourNom, colFourTel, colFourEmail, colFourAdress;
@@ -56,7 +58,7 @@ public class FournisseursController {
     public void initialize() {
         try {
             DataService.refreshCommandesFournisseur();
-            DataService.refreshFournisseurs();
+            //DataService.refreshFournisseurs();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,6 +69,9 @@ public class FournisseursController {
     }
 
     private void setupCommandeTable() {
+    	
+    	colCmdAction.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+    	
         colCmdId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colCmdDate.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getDate().format(fmt)));
         colCmdFournisseur.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getFournisseur().getNom()));
@@ -98,21 +103,24 @@ public class FournisseursController {
                 btnReceive.setStyle("-fx-background-color: #22c55e; -fx-text-fill: white; -fx-cursor: hand;");
                 btnDetails.setStyle("-fx-background-color: #64748b; -fx-text-fill: white; -fx-cursor: hand;");
 
-                btnCancel.setOnAction(e -> handleAnnuler(getTableView().getItems().get(getIndex())));
-                btnEdit.setOnAction(e -> ouvrirCommandeForm(getTableView().getItems().get(getIndex())));
-                btnReceive.setOnAction(e -> handleReception(getTableView().getItems().get(getIndex())));
-                btnDetails.setOnAction(e -> showDetails(getTableView().getItems().get(getIndex())));
+               
                 
                 pane.setAlignment(Pos.CENTER);
                 paneDone.setAlignment(Pos.CENTER);
             }
 
-            @Override protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) setGraphic(null);
+            @Override
+            protected void updateItem(CommandeFournisseur cf, boolean empty) {
+                super.updateItem(cf, empty);
+                if (cf == null || empty) setGraphic(null);
                 else {
-                    CommandeFournisseur c = getTableView().getItems().get(getIndex());
-                    if (c.getStatut() == StatutCommande.CREATED || c.getStatut() == StatutCommande.MODIFIED) setGraphic(pane);
+
+                	 btnCancel.setOnAction(e -> handleAnnuler(cf));
+                     btnEdit.setOnAction(e -> ouvrirCommandeForm(cf));
+                     btnReceive.setOnAction(e -> handleReception(cf));
+                     btnDetails.setOnAction(e -> showDetails(cf));
+                	
+                    if (cf.getStatut() == StatutCommande.CREATED || cf.getStatut() == StatutCommande.MODIFIED) setGraphic(pane);
                     else setGraphic(paneDone);
                 }
             }
@@ -135,7 +143,8 @@ public class FournisseursController {
             CommandeFournisseurDAO cfDAO = new CommandeFournisseurDAO(conn);
 
             for(LigneCommandeFournisseur l : cf.getLignes()) {
-                sDAO.register(new Stock(l.getProduit(), l.getQuantite()));
+                //sDAO.register(new Stock(l.getProduit(), l.getQuantite()));
+            	sDAO.augmenter(l.getProduit().getId(), l.getQuantite());
             }
             cf.setStatut(StatutCommande.RECEIVED);
             cfDAO.updateStatut(cf.getId(), StatutCommande.RECEIVED);
@@ -170,11 +179,22 @@ public class FournisseursController {
     }
 
     private void setupFournisseurTable() {
-        tableFournisseurs.setItems(DataService.getFournisseurs());
+        //tableFournisseurs.setItems(DataService.getFournisseurs());
         colFourNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         colFourTel.setCellValueFactory(new PropertyValueFactory<>("telephone"));
         colFourEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colFourAdress.setCellValueFactory(new PropertyValueFactory<>("adresse"));
+        
+        refreshAnnuaire("");
+        
+        txtSearchAnnuaire.textProperty().addListener((obs, oldVal, newVal) -> {
+        	refreshAnnuaire(newVal);
+        });
+    }
+    
+    private void refreshAnnuaire(String keyword) {
+    	List<Fournisseur> res = DataService.searchFournisseurs(keyword);
+    	tableFournisseurs.setItems(FXCollections.observableArrayList(res));
     }
 
     @FXML
@@ -185,24 +205,42 @@ public class FournisseursController {
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
             stage.showAndWait();
-            DataService.refreshFournisseurs();
-            tableFournisseurs.refresh();
+            
+            refreshAnnuaire(txtSearchAnnuaire.getText());
         } catch(Exception e) { e.printStackTrace(); }
     }
 
     private void setupPaginationAndSearch() {
         filteredData = new FilteredList<>(DataService.getCommandesFournisseur(), p -> true);
 
-        txtSearchFournisseur.textProperty().addListener((observable, oldValue, newValue) -> {
+        txtSearchFournisseur.textProperty().addListener((obs, oldVal, newVal) -> {
+        	
+        	
             filteredData.setPredicate(cmd -> {
-                if (newValue == null || newValue.isEmpty()) return true;
+                if (newVal == null || newVal.isEmpty()) return true;
 
-                String lowerCaseFilter = newValue.toLowerCase();
-                boolean matchName = cmd.getFournisseur().getNom().toLowerCase().contains(lowerCaseFilter);
+                String lowerCaseFilter = newVal.toLowerCase();
+                
                 boolean matchStatut = cmd.getStatut().toString().toLowerCase().contains(lowerCaseFilter);
+                
+                if(matchStatut) return true;
+                
+                Fournisseur f = cmd.getFournisseur();
+                
+                if(f != null) {
+                	if(f.getNom() != null && f.getNom().toLowerCase().contains(newVal))
+                		return true;
 
-                return matchName || matchStatut;
+                	if(f.getTelephone() != null && f.getTelephone().toLowerCase().contains(newVal))
+                		return true;
+
+                	if(f.getEmail() != null && f.getEmail().toLowerCase().contains(newVal))
+                		return true;
+                }
+
+                return false;
             });
+            
             currPage = 0;
             miseAJourTable();
         });

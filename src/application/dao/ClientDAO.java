@@ -84,19 +84,4 @@ public class ClientDAO {
         }
         return -1;
     }
-    
-    public int taille(){
-        String query="SELECT COUNT(id) FROM CLIENT";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 }

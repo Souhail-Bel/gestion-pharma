@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import application.dao.FournisseurDAO;
 import application.dao.StockDAO;
@@ -18,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.Node;
@@ -76,13 +78,19 @@ public class UI_Controller {
     			Connection conn;
     	    	try {
     	    	    conn = DatabaseConnection.getConnection();
-    	    	    StockDAO sDao = new StockDAO(conn);
-    	    	    if (sDao.getAllStocks().stream().anyMatch(Stock::estLowStock)) {
-    	    		    Alert alert = new Alert(Alert.AlertType.WARNING, "Alertes stock bas ! Vérifiez le dashboard.");
-    	    		    alert.show();
+    	    	    StockDAO sDAO = new StockDAO(conn);
+    	    	    
+    	    	    List<Stock> stocks = sDAO.getAllStocks();
+    	    	    if(stocks != null) {
+    	    	    	boolean stockLow = stocks.stream().anyMatch(Stock::estLowStock);
+    	    	    	
+    	    	    	if (stockLow)
+    	    	    		Platform.runLater(() -> {
+    	    	    			new Alert(Alert.AlertType.WARNING, "Alertes stock bas ! Vérifiez le dashboard.").show();
+    	    	    		});
     	    	    }
-    	    	} catch (SQLException e) {
-    	    	    e.printStackTrace();
+    	    	} catch(Exception e) {
+    	    		e.printStackTrace();
     	    	}
     		}
     		
@@ -235,11 +243,15 @@ public class UI_Controller {
     	try {
     		// NOTE: les views doivent etre dans le meme package "application.views"
     		// getClass() utilisé pour chercher dans ce package
+    		
+    		if ("AdminLayout.fxml".equals(fxmlFile) && !currUtilisateur.estAdmin()) {
+    			throw new AccesRefuseException("Accès admin requis!");
+    		}
+    		
+    		
     		URL fxmlURL = getClass().getResource(fxmlFile);
     		
-    		if (fxmlURL == null) {
-    			throw new IOException();
-    		}
+    		if (fxmlURL == null) throw new IOException();
     		
     		FXMLLoader loader = new FXMLLoader(fxmlURL);
     		Parent view = loader.load();
@@ -250,6 +262,8 @@ public class UI_Controller {
     	} catch (IOException e) {
     		e.printStackTrace();
 			System.err.println("Couldn't load FXML '"+fxmlFile+"'");
+    	} catch (AccesRefuseException e) {
+    		new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
     	}
     }
     

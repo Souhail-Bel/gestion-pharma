@@ -115,8 +115,7 @@ public class NouvelleCommandeController {
         	
         	
         	if(currCf == null) {
-        		int newId = cfDao.taille()+1;
-                CommandeFournisseur cmd = new CommandeFournisseur(newId, comboFournisseur.getValue(), LocalDateTime.now(), "CREATED");
+                CommandeFournisseur cmd = new CommandeFournisseur(0, comboFournisseur.getValue(), LocalDateTime.now(), "CREATED");
                 cmd.getLignes().addAll(panierList);
                 cfDao.save(cmd);
         	} else { // edit
@@ -169,7 +168,7 @@ public class NouvelleCommandeController {
 
     public void preFill(Produit p) {
         tableCatalogue.getItems().stream()
-                .filter(stock -> stock.getProduit().getId() == p.getId())
+                .filter(stock -> stock.getProduitId() == p.getId())
                 .findFirst()
                 .ifPresent(stock -> tableCatalogue.getSelectionModel().select(stock));
     }

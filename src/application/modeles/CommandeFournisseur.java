@@ -50,4 +50,6 @@ public class CommandeFournisseur {
 	public void setStatut(StatutCommande statut) { this.statut = statut; }
 	public void setFournisseur(Fournisseur fournisseur) {this.fournisseur = fournisseur;}
 
+	public void setId(int newId) {id = newId;}
+
 }

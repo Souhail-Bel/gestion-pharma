@@ -122,7 +122,7 @@ public class StockController {
     	colQuantite.setCellValueFactory(new PropertyValueFactory<>("quantiteDisponible"));
     	
     	colId.setCellValueFactory(cellData -> 
-        new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getProduit().getId()));
+        new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getProduitId()));
     	
     	colNom.setCellValueFactory(cellData -> 
         new javafx.beans.property.SimpleStringProperty(cellData.getValue().getProduit().getNom()));

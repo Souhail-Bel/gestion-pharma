@@ -4,6 +4,7 @@ import application.modeles.LigneVente;
 import application.modeles.Vente;
 import application.services.DataService;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class HistoriqueController {
 
@@ -24,20 +26,20 @@ public class HistoriqueController {
     @FXML private TableColumn<Vente, Integer> colId;
     @FXML private TableColumn<Vente, String> colDate;
     @FXML private TableColumn<Vente, String> colClient;
-    @FXML private TableColumn<Vente, String> colTotal; // Changed to String for currency formatting
-
+    @FXML private TableColumn<Vente, String> colTotal;
+    
     // table details
     @FXML private Label lblDetailInfo;
     @FXML private TableView<LigneVente> tableDetails;
     @FXML private TableColumn<LigneVente, String> colDetProduit;
     @FXML private TableColumn<LigneVente, Integer> colDetQte;
-    @FXML private TableColumn<LigneVente, String> colDetTotal; // Changed to String for currency formatting
+    @FXML private TableColumn<LigneVente, String> colDetTotal;
+
     
     @FXML private DatePicker datePickerStart;
     @FXML private DatePicker datePickerEnd;
     @FXML private TextField txtSearchClient;
     
-    private FilteredList<Vente> filteredData;
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @FXML
@@ -45,19 +47,13 @@ public class HistoriqueController {
         setupProduitsTable();
         setupDetailsTable();
 
-        // charger histroique
-        filteredData = new FilteredList<>(DataService.getHistoriqueVentes(), p -> true);
+        
+        chargerDonnees();
         
         // Listeners for filters
-        txtSearchClient.textProperty().addListener((obs, oldVal, newVal) -> miseAJourFiltre());
-        datePickerStart.valueProperty().addListener((obs, oldVal, newVal) -> miseAJourFiltre());
-        datePickerEnd.valueProperty().addListener((obs, oldVal, newVal) -> miseAJourFiltre());
-        
-        // Wrap filtered list in sorted list
-        SortedList<Vente> sortedData = new SortedList<>(filteredData);
-        sortedData.comparatorProperty().bind(tableVentes.comparatorProperty());
-        
-        tableVentes.setItems(sortedData);
+        txtSearchClient.textProperty().addListener((obs, oldVal, newVal) -> chargerDonnees());
+        datePickerStart.valueProperty().addListener((obs, oldVal, newVal) -> chargerDonnees());
+        datePickerEnd.valueProperty().addListener((obs, oldVal, newVal) -> chargerDonnees());
 
         // afficher details selon selection
         tableVentes.getSelectionModel().selectedItemProperty().addListener(
@@ -72,14 +68,13 @@ public class HistoriqueController {
             new SimpleStringProperty(cell.getValue().getDate().format(fmt)));
             
         colClient.setCellValueFactory(cell -> 
-            new SimpleStringProperty(cell.getValue().getClient() != null ? cell.getValue().getClient().getNom() : "Anonyme"));
+            new SimpleStringProperty(cell.getValue().getClient() != null ? cell.getValue().getClient().toString() : "Anonyme"));
             
         colTotal.setCellValueFactory(cell ->
             new SimpleStringProperty(String.format("%.3f TND", cell.getValue().getTotal())));
     }
 
     private void setupDetailsTable() {
-        // Fixed: Use Lambda to access nested Product object safely
         colDetProduit.setCellValueFactory(cell -> 
             new SimpleStringProperty(cell.getValue().getProduit().getNom()));
             
@@ -91,11 +86,16 @@ public class HistoriqueController {
 
     private void showDetails(Vente vente) {
         if (vente != null) {
+        	
+        	if (vente.getLignes().isEmpty()) {
+                DataService.loadVenteDetails(vente);
+            }
+        	
             String employeName = (vente.getEmploye() != null) ? vente.getEmploye().getUsername() : "Inconnu";
-            String clientName = (vente.getClient() != null) ? vente.getClient().getNom() : "Anonyme";
+            String clientName = (vente.getClient() != null) ? vente.getClient().toString() : "Anonyme";
             
             lblDetailInfo.setText("Client : " + clientName + "\nVendu par : " + employeName);
-            tableDetails.getItems().setAll(vente.getLignes());
+            tableDetails.setItems(FXCollections.observableArrayList(vente.getLignes()));
         } else {
             lblDetailInfo.setText("Sélectionnez une vente...");
             tableDetails.getItems().clear();
@@ -109,27 +109,14 @@ public class HistoriqueController {
         datePickerEnd.setValue(null);
     }
     
-    private void miseAJourFiltre() {
-        filteredData.setPredicate(vente -> {
-            // par client
-            String query = txtSearchClient.getText();
-            if(query != null && !query.isEmpty()) {
-                String clientName = vente.getClient() != null ? vente.getClient().getNom().toLowerCase() : "";
-                if(!clientName.contains(query.toLowerCase()))
-                    return false;
-            }
-            
-            // par periode
-            if (vente.getDate() == null) return false;
-            LocalDate dateVente = vente.getDate().toLocalDate();
-            
-            if(datePickerStart.getValue() != null && dateVente.isBefore(datePickerStart.getValue()))
-                return false;
-            
-            if(datePickerEnd.getValue() != null && dateVente.isAfter(datePickerEnd.getValue()))
-                return false;
-            
-            return true;
-        });
+    
+    private void chargerDonnees() {
+    	LocalDate dateMin = datePickerStart.getValue();
+    	LocalDate dateMax = datePickerEnd.getValue();
+    	String clientNom = txtSearchClient.getText();
+    	
+    	List<Vente> res = DataService.searchVentes(dateMin, dateMax, clientNom);
+    	
+    	tableVentes.setItems(FXCollections.observableArrayList(res));
     }
 }

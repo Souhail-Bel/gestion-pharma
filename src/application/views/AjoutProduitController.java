@@ -65,7 +65,8 @@ public class AjoutProduitController {
                 p.setSeuilMinimal(spinSeuil.getValue());
                 pDao.update(p);
                 stockToEdit.setQuantiteDisponible(spinStock.getValue());
-                sDao.update(stockToEdit);
+                
+                sDao.updateQuantite(p.getId(), stockToEdit.getQuantiteDisponible());
             } else {
                 Produit p = new Produit(0, txtNom.getText(), Double.parseDouble(txtPrix.getText()), spinSeuil.getValue());
                 int prodId = pDao.register(p);

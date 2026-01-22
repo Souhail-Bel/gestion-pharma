@@ -1,6 +1,6 @@
 package application.services;
 
-import application.dao.EmployeeDAO;
+import application.dao.EmployeDAO;
 import application.exceptions.AccesRefuseException;
 import application.modeles.Employe;
 import application.resources.DatabaseConnection;
@@ -8,11 +8,11 @@ import java.sql.SQLException;
 
 public class AuthService {
 
-    private EmployeeDAO edao;
+    private EmployeDAO edao;
 
     public AuthService() {
         try {
-            this.edao = new EmployeeDAO(DatabaseConnection.getConnection());
+            this.edao = new EmployeDAO(DatabaseConnection.getConnection());
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Erreur de connexion à la base de données");

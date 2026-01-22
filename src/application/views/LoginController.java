@@ -32,7 +32,6 @@ public class LoginController {
     public void initialize() {
         btnLogin.setDefaultButton(true);
         
-        // Remove red borders instantly when typing starts
         txtUser.textProperty().addListener((obs, old, neu) -> {
             txtUser.setStyle("");
             lblError.setVisible(false);
@@ -70,7 +69,6 @@ public class LoginController {
                 txtUser.requestFocus();
             } else if (msg.toLowerCase().contains("passe")) {
                 txtPass.setStyle(errorStyle);
-                txtPass.clear();
                 txtPass.requestFocus();
             } else {
                 txtUser.setStyle(errorStyle);

@@ -22,8 +22,7 @@ public class StockDAO {
             while (rs.next()) {
                 Stock stock = new Stock(
                     rs.getInt("produit_id"),
-                    rs.getInt("quantiteDisponible"),
-                    connection
+                    rs.getInt("quantiteDisponible")
                 );
                 stocks.add(stock);
             }
@@ -34,7 +33,7 @@ public class StockDAO {
     public void register(Stock s) throws SQLException {
         String query = "INSERT INTO STOCK (produit_id,quantitedisponible) VALUES(?,?);";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, s.getProduit().getId());
+            stmt.setInt(1, s.getProduitId());
             stmt.setInt(2, s.getQuantiteDisponible());
             stmt.executeUpdate();
         }
@@ -48,8 +47,7 @@ public class StockDAO {
             if (rs.next()) {
                 return new Stock(
                         rs.getInt("produit_id"),
-                        rs.getInt("quantiteDisponible"),
-                        connection
+                        rs.getInt("quantiteDisponible")
                 );
             } else {
                 return null;
@@ -63,7 +61,7 @@ public class StockDAO {
             stmt.setInt(1, prodId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new Stock(rs.getInt("produit_id"), rs.getInt("quantiteDisponible"), connection);
+                return new Stock(rs.getInt("produit_id"), rs.getInt("quantiteDisponible"));
             }
             return null;
         }
@@ -79,21 +77,23 @@ public class StockDAO {
         return 0;
     }
 
-    public void update(Stock stock) throws SQLException {
+    public void updateQuantite(int produitId, int nouvelleQuantite) throws SQLException {
         String query = "UPDATE STOCK SET quantiteDisponible = ? WHERE produit_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, stock.getQuantiteDisponible());
-            stmt.setInt(2, stock.getProduit().getId());
+            stmt.setInt(1, nouvelleQuantite);
+            stmt.setInt(2, produitId);
             stmt.executeUpdate();
         }
     }
 
     public void augmenter(int produitId, int quantiteAjoutee) throws SQLException {
-        String query = "UPDATE STOCK SET quantiteDisponible = quantiteDisponible + ? WHERE produit_id = ?";
+        String query = "INSERT INTO STOCK (produit_id, quantiteDisponible) VALUES (?, ?) " +
+                "ON DUPLICATE KEY UPDATE quantiteDisponible = quantiteDisponible + ?";
         
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, quantiteAjoutee);
-            stmt.setInt(2, produitId);
+            stmt.setInt(1, produitId);
+            stmt.setInt(2, quantiteAjoutee);
+            stmt.setInt(3, quantiteAjoutee);
             stmt.executeUpdate();
         }
     }

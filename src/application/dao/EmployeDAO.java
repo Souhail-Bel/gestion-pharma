@@ -2,10 +2,10 @@ package application.dao;
 import application.modeles.Employe;
 import java.sql.*;
 
-public class EmployeeDAO {
+public class EmployeDAO {
     private Connection connection;
 
-    public EmployeeDAO(Connection connection) {
+    public EmployeDAO(Connection connection) {
         this.connection = connection;
     }
     public Employe findById(int id) throws SQLException {

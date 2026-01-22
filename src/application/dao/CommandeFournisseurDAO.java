@@ -44,33 +44,25 @@ public class CommandeFournisseurDAO {
         return lignes;
     }
     
-    public int taille(){
-        String query="SELECT COUNT(id) FROM COMMANDE_FOURNISSEUR";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     public int save(CommandeFournisseur cmd) throws SQLException {
         String query = "INSERT INTO COMMANDE_FOURNISSEUR (fournisseur_id, dateCommande, statut) VALUES (?, ?, ?)";
+        
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            
             stmt.setInt(1, cmd.getFournisseur().getId());
-            stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDate()));
+            stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDate())); 
             stmt.setString(3, cmd.getStatut().toString());
+            
             stmt.executeUpdate();
+            
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                int cmdId = rs.getInt(1);
-                saveLignes(cmd.getLignes(), cmdId);
-                return cmdId;
+                int newId = rs.getInt(1);
+                cmd.setId(newId); 
+                saveLignes(cmd.getLignes(), newId);
+                
+                return newId;
             }
             return -1;
         }

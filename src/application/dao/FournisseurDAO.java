@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FournisseurDAO {
     private Connection connection;
@@ -54,6 +55,37 @@ public class FournisseurDAO {
             }
         }
 	}
+	
+	public List<Fournisseur> findByFilter(String keyword) throws SQLException {
+	    List<Fournisseur> list = new ArrayList<>();
+	    
+	    if (keyword == null || keyword.trim().isEmpty()) {
+	        return getAll();
+	    }
+
+	    String sql = "SELECT * FROM FOURNISSEUR WHERE nom LIKE ? OR telephone LIKE ? OR email LIKE ? OR adresse LIKE ?";
+	    
+	    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+	        String rechFormat = "%" + keyword + "%";
+	        pstmt.setString(1, rechFormat);
+	        pstmt.setString(2, rechFormat);
+	        pstmt.setString(3, rechFormat);
+	        pstmt.setString(4, rechFormat);
+	        
+	        ResultSet rs = pstmt.executeQuery();
+	        while (rs.next()) {
+	            list.add(new Fournisseur(
+	                rs.getInt("id"),
+	                rs.getString("nom"),
+	                rs.getString("telephone"),
+	                rs.getString("email"),
+	                rs.getString("adresse")
+	            ));
+	        }
+	    }
+	    return list;
+	}
+	
 	
 	public void update(Fournisseur f) throws SQLException {
         String query = "UPDATE FOURNISSEUR SET nom=?, telephone=?, email=?, adresse=? WHERE id=?";

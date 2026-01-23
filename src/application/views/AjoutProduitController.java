@@ -69,11 +69,11 @@ public class AjoutProduitController {
                 sDao.updateQuantite(p.getId(), stockToEdit.getQuantiteDisponible());
             } else {
                 Produit p = new Produit(0, txtNom.getText(), Double.parseDouble(txtPrix.getText()), spinSeuil.getValue());
-                int prodId = pDao.register(p);
-                if (prodId != -1) {
-                    Stock newStock = new Stock(p, spinStock.getValue());
-                    sDao.register(newStock);
-                }
+                //int prodId = pDao.register(p);
+                //if (prodId != -1) {
+                Stock newStock = new Stock(p, spinStock.getValue());
+                sDao.register(newStock);
+                //}
             }
             DataService.refreshStocks();
         } catch (SQLException e) {

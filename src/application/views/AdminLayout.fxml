@@ -86,8 +86,8 @@
                  <Label text="Recherche:" />
                  <TextField fx:id="txtSearchFournisseur" promptText="Nom, Email..." style="-fx-background-radius: 20; -fx-padding: 8 15;" HBox.hgrow="ALWAYS" />
                  <Button onAction="#ouvrirAjoutFournisseur" style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-background-radius: 20;" text="+ Nouveau Fournisseur" />
+                  <Button text="🖨 Exporter PDF" onAction="#exportFournisseursPDF" style="-fx-background-color: #546E7A; -fx-text-fill: white;"/>
               </HBox>
-              
               <TableView fx:id="tableGestionFournisseurs" VBox.vgrow="ALWAYS">
                 <columns>
                   <TableColumn fx:id="colGestNom" prefWidth="180" text="Nom" />

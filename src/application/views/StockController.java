@@ -8,6 +8,7 @@ import application.dao.StockDAO;
 import application.modeles.Stock;
 import application.resources.DatabaseConnection;
 import application.services.DataService;
+import application.services.PDFService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -240,5 +241,35 @@ public class StockController {
     		miseAJourTable();
     	}
     }
+    
+    
+    @FXML
+    void exportStockPDF(ActionEvent ae) {
+    	try {
+            if (sortedData == null || sortedData.isEmpty()) {
+                new Alert(Alert.AlertType.WARNING, "Aucune donnée à exporter.").show();
+                return;
+            }
+
+
+            ObservableList<Stock> currentView = tableStock.getItems();
+            
+            tableStock.setItems(sortedData);
+            tableStock.refresh();
+
+
+            PDFService.exportTableViewToPDF(tableStock, "Inventaire_Stock", (Stage) tableStock.getScene().getWindow());
+
+            tableStock.setItems(currentView);
+            tableStock.refresh();
+    	} catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Erreur lors de l'export PDF").show();
+        }
+    	
+    	//PDFService.exportTableViewToPDF(tableGestionFournisseurs, "Liste Fournisseurs", (Stage) globalBox.getScene().getWindow());
+    }
+    
+    
 
 }

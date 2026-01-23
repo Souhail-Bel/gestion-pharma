@@ -3,6 +3,7 @@ package application.views;
 import application.dao.FournisseurDAO;
 import application.modeles.*;
 import application.services.DataService;
+import application.services.PDFService;
 import application.services.reports.ChiffreAffaires;
 import application.services.reports.PerformanceFournissuers;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -167,6 +168,20 @@ public class AdminController {
             });
         });
     }
+    
+    
+    
+    @FXML
+    private void exportFournisseursPDF(ActionEvent event) {
+    	try {
+        PDFService.exportTableViewToPDF(tableGestionFournisseurs, "Liste Fournisseurs", (Stage) globalBox.getScene().getWindow());
+    	} catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Erreur lors de l'export PDF").show();
+        }
+    }
+    
+    
 
     private void setupAlertes() {
         ObservableList<Stock> lowStocks = DataService.getStockGlobal().filtered(Stock::estLowStock);

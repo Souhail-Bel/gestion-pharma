@@ -48,6 +48,8 @@
             <Insets left="15.0" right="15.0"/>
           </padding>
         </Button>
+        
+                  <Button text="🖨 Exporter PDF" onAction="#exportStockPDF" style="-fx-background-color: #546E7A; -fx-text-fill: white;"/>
       </children>
     </HBox>
     <TableView fx:id="tableStock" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0.2, 0, 5);">

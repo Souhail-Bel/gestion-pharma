@@ -26,7 +26,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -61,19 +64,47 @@ public class UI_Controller {
     @FXML private BorderPane mainBorderPane;
 
     
+    @FXML private ImageView imgUserIcon;
+    
     
     @FXML
     public void initialize() {
     	
     	if(currUtilisateur != null) {
-    		lblWelcome.setText("@" + currUtilisateur.getUsername());
 
+            
+    		String icoName = currUtilisateur.estAdmin() ? "ico_admin.png" : "ico_usr.png";
+    		setIconDefaut(icoName);
+    		
+
+    		java.util.Map<String, String> GL2_Groupe_14 = new java.util.HashMap<>();
+            GL2_Groupe_14.put("souhail ben belhassen", "souhail-bel");		// GL 2/2
+            GL2_Groupe_14.put("akrem medimagh", "lost4onin");				// GL 2/1
+            GL2_Groupe_14.put("ahmed el euch", "eleuchahmed");				// GL 2/1
+            GL2_Groupe_14.put("adam bhouri", "adam-bh ");					// GL 2/1
+            GL2_Groupe_14.put("mohamed aziz gadhgadhi", "aziz-gadh");		// GL 2/1
+    		
+            String ghUser = GL2_Groupe_14.get(currUtilisateur.getPrenom() + " " + currUtilisateur.getNom());
+            
+            if(ghUser != null) {
+	            String url = "https://github.com/" + ghUser + ".png";
+	            // asynchrone depuis du web
+	            Image onImg = new Image(url, true);
+	            onImg.progressProperty().addListener((obs, oldVal, newVal) -> {
+	            	if(newVal.doubleValue() == 1.0 && !onImg.isError()) {
+	            		imgUserIcon.setImage(onImg);
+	            		imageCirculaire(imgUserIcon);
+	            	}
+	            });
+            }
+    		
     		if (!currUtilisateur.estAdmin()) {
                 btnDashboard.setVisible(false);
                 btnDashboard.setManaged(false);
             }
     		
     		
+    		// alerte l'admin
     		if (currUtilisateur.estAdmin()) {
     			Connection conn;
     	    	try {
@@ -93,7 +124,9 @@ public class UI_Controller {
     	    		e.printStackTrace();
     	    	}
     		}
-    		
+
+
+    		lblWelcome.setText("@" + currUtilisateur.getUsername());
             Label warmwelcome = new Label("Bonjour, " + currUtilisateur.getNom());
             warmwelcome.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
             contentArea.getChildren().add(warmwelcome);
@@ -131,6 +164,27 @@ public class UI_Controller {
     		collapseSidebar();
     	});
     }
+    
+    
+    
+    private void setIconDefaut(String path) {
+    	try { imgUserIcon.setImage(new Image(getClass().getResourceAsStream("../res/icons/" + path))); }
+		catch (Exception e) { System.err.println("User icône " + path + " n'est pas chargé"); }
+    }
+    
+    
+    private void imageCirculaire(ImageView imgView) {
+    	double m_x = imgView.getFitWidth()/2;
+    	double m_y = imgView.getFitHeight()/2;
+    	
+    	Circle clip = new Circle(m_x, m_y, m_y );
+    	
+    	imgView.setClip(clip);
+    	StackPane.setAlignment(imgView, Pos.CENTER);
+    }
+    
+    
+    
     
     private void expandSidebar() {
     	animateSidebar(EXPANDED_WIDTH);

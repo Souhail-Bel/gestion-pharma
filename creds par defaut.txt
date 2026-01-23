@@ -1,0 +1,12 @@
+
+    UTILISATEUR    |     MOT DE PASSE
+                   |
+vvv             ADMINS              vvv
+    admin          |        admin
+    lost4onin      |        akrem123
+                   |
+vvv             EMPLOYÉS            vvv
+    he             |        he123
+    nest           |        nest123
+    hyper          |        hyper123
+    gadh           |        gadh123

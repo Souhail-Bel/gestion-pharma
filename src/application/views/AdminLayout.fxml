@@ -1,93 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="680.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.AdminController"
-            style="-fx-background-color: #FAFAFA;">
+<AnchorPane prefHeight="750.0" prefWidth="1200.0" stylesheets="@../application.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.views.AdminController">
 
-  <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-    <Label text="Tableau de Bord Administrateur" textFill="#00796B"
-           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-padding: 20 0 10 30;"/>
+  <VBox spacing="0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    
+    <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: white; -fx-padding: 20 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);">
+        <children>
+            <VBox>
+                <Label text="PharmaSys Admin" textFill="#00796B">
+                    <font><Font name="System Bold" size="24.0" /></font>
+                </Label>
+                <Label text="Vue d'ensemble et gestion" textFill="#9e9e9e" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleRefresh" styleClass="btn-primary" text="Actualiser Données" />
+        </children>
+    </HBox>
 
-    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" style="-fx-padding: 0 20 20 20;">
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
       <tabs>
-        <Tab text="Vue Globale">
+      
+        <Tab text="VUE GLOBALE">
           <content>
-            <VBox fx:id="globalBox" spacing="20.0" style="-fx-padding: 20;">
-              <HBox spacing="20.0">
-                <VBox alignment="CENTER" style="-fx-background-color: #E8F5E9; -fx-border-color: #4CAF50; -fx-padding: 15; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
-                  <Label text="Chiffre d'Affaires" style="-fx-font-weight: bold;"/>
-                  <Label fx:id="lblChiffreAffaires" text="0.00 TND" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                </VBox>
-                <VBox alignment="CENTER" style="-fx-background-color: #E8F5E9; -fx-border-color: #4CAF50; -fx-padding: 15; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
-                  <Label text="Stocks Bas" style="-fx-font-weight: bold;"/>
-                  <Label fx:id="lblLowStock" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                </VBox>
-                <VBox alignment="CENTER" style="-fx-background-color: #E8F5E9; -fx-border-color: #4CAF50; -fx-padding: 15; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" HBox.hgrow="ALWAYS">
-                  <Label text="Commandes en Attente" style="-fx-font-weight: bold;"/>
-                  <Label fx:id="lblPendingOrders" text="0" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                </VBox>
+            <VBox fx:id="globalBox" spacing="30.0" style="-fx-padding: 30;">
+              
+              <HBox spacing="25.0">
+                <HBox alignment="CENTER_LEFT" spacing="15" styleClass="stat-card, card-green" HBox.hgrow="ALWAYS">
+                   <SVGPath content="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" fill="BLACK" scaleX="2" scaleY="2" />
+                   <VBox>
+                       <Label styleClass="stat-label" text="Chiffre d'Affaires" />
+                       <Label fx:id="lblChiffreAffaires" styleClass="stat-value" text="0.00 TND" />
+                   </VBox>
+                </HBox>
+                
+                <HBox alignment="CENTER_LEFT" spacing="15" styleClass="stat-card, card-red" HBox.hgrow="ALWAYS">
+                   <SVGPath content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="BLACK" scaleX="2" scaleY="2" />
+                   <VBox>
+                       <Label styleClass="stat-label" text="Stocks Critiques" />
+                       <Label fx:id="lblLowStock" styleClass="stat-value" text="0" />
+                   </VBox>
+                </HBox>
+                
+                <HBox alignment="CENTER_LEFT" spacing="15" styleClass="stat-card, card-orange" HBox.hgrow="ALWAYS">
+                   <SVGPath content="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="BLACK" scaleX="2" scaleY="2" />
+                   <VBox>
+                       <Label styleClass="stat-label" text="Commandes Attente" />
+                       <Label fx:id="lblPendingOrders" styleClass="stat-value" text="0" />
+                   </VBox>
+                </HBox>
               </HBox>
-              <BarChart fx:id="chartSales" title="Ventes Récentes">
-                <xAxis><CategoryAxis label="Date"/></xAxis>
-                <yAxis><NumberAxis label="Montant"/></yAxis>
-              </BarChart>
+              
+              <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);" VBox.vgrow="ALWAYS">
+                  <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;" text="Analyse des Ventes" />
+                  <BarChart fx:id="chartSales" legendVisible="false" verticalGridLinesVisible="false">
+                    <xAxis><CategoryAxis label="Date" /></xAxis>
+                    <yAxis><NumberAxis label="Montant (TND)" /></yAxis>
+                  </BarChart>
+              </VBox>
             </VBox>
           </content>
         </Tab>
-        <Tab text="Gestion Fournisseurs">
+        
+        <Tab text="FOURNISSEURS">
           <content>
             <VBox spacing="15.0" style="-fx-padding: 20;">
-              <TableView fx:id="tableGestionFournisseurs" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+              <HBox alignment="CENTER_LEFT" spacing="10">
+                 <Label text="Recherche:" />
+                 <TextField fx:id="txtSearchFournisseur" promptText="Nom, Email..." style="-fx-background-radius: 20; -fx-padding: 8 15;" HBox.hgrow="ALWAYS" />
+                 <Button onAction="#ouvrirAjoutFournisseur" style="-fx-background-color: #00796B; -fx-text-fill: white; -fx-background-radius: 20;" text="+ Nouveau Fournisseur" />
+              </HBox>
+              
+              <TableView fx:id="tableGestionFournisseurs" VBox.vgrow="ALWAYS">
                 <columns>
-                  <TableColumn fx:id="colGestNom" text="Nom" prefWidth="180"/>
-                  <TableColumn fx:id="colGestTel" text="Téléphone" prefWidth="120"/>
-                  <TableColumn fx:id="colGestEmail" text="Email" prefWidth="220"/>
-                  <TableColumn fx:id="colGestAdresse" text="Adresse" prefWidth="200"/>
-                  <TableColumn fx:id="colGestAction" text="Actions" prefWidth="100"/>
+                  <TableColumn fx:id="colGestNom" prefWidth="180" text="Nom" />
+                  <TableColumn fx:id="colGestTel" prefWidth="120" text="Téléphone" />
+                  <TableColumn fx:id="colGestEmail" prefWidth="220" text="Email" />
+                  <TableColumn fx:id="colGestAdresse" prefWidth="200" text="Adresse" />
+                  <TableColumn fx:id="colGestAction" prefWidth="100" text="Actions" />
                 </columns>
+                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
               </TableView>
             </VBox>
           </content>
         </Tab>
-        <Tab text="Performance Fournisseurs">
+        
+        <Tab text="ANALYSE PERF.">
           <content>
-            <VBox spacing="15.0" style="-fx-padding: 20;">
-              <TableView fx:id="tableSupplierPerf" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
-                <columns>
-                  <TableColumn fx:id="colPerfId" text="ID" prefWidth="80"/>
-                  <TableColumn fx:id="colPerfNom" text="Fournisseur" prefWidth="200"/>
-                  <TableColumn fx:id="colPerfOrders" text="Commandes" prefWidth="100"/>
-                  <TableColumn fx:id="colPerfAmount" text="Total Achats" prefWidth="120"/>
-                </columns>
-              </TableView>
-              <BarChart fx:id="chartPerfFournisseurs" title="Montant total par fournisseur">
-                <xAxis>
-                  <CategoryAxis label="Fournisseur" />
-                </xAxis>
-                <yAxis>
-                  <NumberAxis label="Montant Total" />
-                </yAxis>
-              </BarChart>
-            </VBox>
+            <HBox spacing="20" style="-fx-padding: 20;">
+                <VBox spacing="10" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-weight: bold; -fx-text-fill: #555;" text="Détails par Fournisseur" />
+                    <TableView fx:id="tableSupplierPerf" VBox.vgrow="ALWAYS">
+                      <columns>
+                        <TableColumn fx:id="colPerfNom" prefWidth="150" text="Fournisseur" />
+                        <TableColumn fx:id="colPerfOrders" prefWidth="100" text="Cmds" />
+                        <TableColumn fx:id="colPerfAmount" prefWidth="120" text="Total Achats" />
+                      </columns>
+                       <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
+                    </TableView>
+                </VBox>
+                <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 10;" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-weight: bold; -fx-text-fill: #555;" text="Comparatif" />
+                    <BarChart fx:id="chartPerfFournisseurs" legendVisible="false">
+                      <xAxis><CategoryAxis label="Fournisseur" /></xAxis>
+                      <yAxis><NumberAxis label="Montant" /></yAxis>
+                    </BarChart>
+                </VBox>
+            </HBox>
           </content>
         </Tab>
-        <Tab text="Alertes Stock">
+        
+        <Tab text="ALERTES STOCK">
           <content>
             <VBox spacing="15.0" style="-fx-padding: 20;">
-              <TableView fx:id="tableAlertes" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+               <HBox fx:id="boxAlertOhno" alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #ffebee; -fx-padding: 10; -fx-background-radius: 5;">
+                   <Label text="⚠️ Ces produits sont en dessous du seuil." textFill="#c62828" />
+               </HBox>
+               
+               <HBox fx:id="boxAlertAllesGut" alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #E8F5E9; -fx-padding: 10; -fx-background-radius: 5;">
+                   <Label text="✔️ Aucun stock critique." textFill="#2E7D32" />
+               </HBox>
+               
+              <TableView fx:id="tableAlertes" VBox.vgrow="ALWAYS">
                 <columns>
-                  <TableColumn fx:id="colAlerteProduit" text="Produit" prefWidth="220"/>
-                  <TableColumn fx:id="colAlerteQte" text="Stock" prefWidth="100"/>
-                  <TableColumn fx:id="colAlerteSeuil" text="Seuil" prefWidth="100"/>
-                  <TableColumn fx:id="colAlerteAction" text="Action" prefWidth="140"/>
+                  <TableColumn fx:id="colAlerteProduit" prefWidth="220" text="Produit" />
+                  <TableColumn fx:id="colAlerteQte" prefWidth="100" text="En Stock" />
+                  <TableColumn fx:id="colAlerteSeuil" prefWidth="100" text="Seuil Min." />
+                  <TableColumn fx:id="colAlerteAction" prefWidth="140" text="Action" />
                 </columns>
+                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
               </TableView>
             </VBox>
           </content>

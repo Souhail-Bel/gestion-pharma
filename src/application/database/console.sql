@@ -100,11 +100,11 @@ CREATE TABLE LIGNE_VENTE (
 
 INSERT INTO EMPLOYE (nom, prenom, username, password, role) VALUES
 ('admin', 'admin', 'admin', SHA2('admin', 256), 'ADMIN'),
-('akrem', 'medimagh', 'lost4onin', SHA2('akrem123', 256), 'ADMIN'),
-('souhail', 'belhassen', 'he', SHA2('he123', 256), 'EMPLOYE'),
-('elleuch', 'ahmed', 'nest', SHA2('nest123', 256), 'EMPLOYE'),
+('medimagh', 'akrem', 'lost4onin', SHA2('akrem123', 256), 'ADMIN'),
+('ben belhassen', 'souhail', 'he', SHA2('he123', 256), 'EMPLOYE'),
+('el euch', 'ahmed', 'nest', SHA2('nest123', 256), 'EMPLOYE'),
 ('bhouri', 'adam', 'hyper', SHA2('hyper123', 256), 'EMPLOYE'),
-('gadhgadhi', 'aziz', 'gadh', SHA2('gadh123', 256), 'EMPLOYE');
+('gadhgadhi', 'mohamed aziz', 'gadh', SHA2('gadh123', 256), 'EMPLOYE');
 
 
 

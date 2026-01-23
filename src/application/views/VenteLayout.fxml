@@ -47,12 +47,15 @@
                         <VBox spacing="5.0" style="-fx-background-color: #E8F5E9; -fx-padding: 10; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);">
                            <children>
                               <Label text="Client" textFill="#004d40"><font><Font name="System Bold" size="12.0" /></font></Label>
-                              <HBox spacing="10.0">
-                                 <children>
-                                    <ComboBox fx:id="cmbClient" maxWidth="1.7976931348623157E308" promptText="Sélectionner un client..." HBox.hgrow="ALWAYS" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
-                                    <Button onAction="#handleAjoutClient" style="-fx-background-color: linear-gradient(to bottom, #00796B, #004D40); -fx-text-fill: white; -fx-background-radius: 8;" text="+" />
-                                 </children>
-                              </HBox>
+<HBox spacing="10.0">
+   <children>
+      <ComboBox fx:id="cmbClient" maxWidth="1.7976931348623157E308" promptText="Sélectionner un client..." HBox.hgrow="ALWAYS" style="-fx-background-radius: 8; -fx-border-color: #E0E0E0; -fx-border-radius: 8;" />
+      
+      <Button onAction="#handleSearchClient" style="-fx-background-color: #0288d1; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="🔍" />
+      
+      <Button onAction="#handleAjoutClient" style="-fx-background-color: linear-gradient(to bottom, #00796B, #004D40); -fx-text-fill: white; -fx-background-radius: 8;" text="+" />
+   </children>
+</HBox>
                            </children>
                         </VBox>
                         

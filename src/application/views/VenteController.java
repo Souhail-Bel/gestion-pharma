@@ -19,6 +19,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
 import java.sql.Connection;
@@ -48,6 +49,15 @@ public class VenteController {
     // données
     private ObservableList<LigneVente> panier = FXCollections.observableArrayList();
     private FilteredList<Stock> filteredStock;
+    
+    
+    private ObservableList<Client> clientListRacc = FXCollections.observableArrayList();
+    
+    // legend has it this specific client once bought the whole pharmacy
+    private final int CLIENT_VOIR_PLUS_ID = -999;
+    private final Client CLIENT_VOIR_PLUS = new Client(CLIENT_VOIR_PLUS_ID, "Voir plus... ", "(Cliquez ici)", "");
+    private final int LIST_CLIENT_MAX = 20;
+    
 
     @FXML
     public void initialize() {
@@ -56,17 +66,40 @@ public class VenteController {
         setupClientSection();
         setupSearch();
     }
+    
+    private void miseAJourClientCombo() {
+    	clientListRacc.clear();
+    	DataService.getClients().stream().limit(LIST_CLIENT_MAX).forEach(clientListRacc::add);
+    	clientListRacc.add(CLIENT_VOIR_PLUS);
+    }
 
 
     private void setupClientSection() {
-        cmbClient.setItems(DataService.getClients());
+    	miseAJourClientCombo();
+    	
+        cmbClient.setItems(clientListRacc);
         
 
         cmbClient.setConverter(new StringConverter<Client>() {
-            @Override public String toString(Client c) { return c == null ? "" : (c.getNom() + " " + c.getPrenom()); }
+            @Override public String toString(Client c) {
+            	//return c == null ? "" : (c.getNom() + " " + c.getPrenom());
+            	if(c == null) return "";
+            	if(c.getId() == CLIENT_VOIR_PLUS_ID) return "🔍 " + c.getNom() + c.getPrenom();
+            	return c.getNom() + " " + c.getPrenom();
+            }
             @Override public Client fromString(String string) { return null; }
         });
 
+        
+        cmbClient.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+        	if(newVal != null && newVal.getId() == CLIENT_VOIR_PLUS_ID) {
+        		Platform.runLater(() -> {
+        			cmbClient.getSelectionModel().clearSelection();
+        			handleSearchClient(null);
+        		});
+        	}
+        });
+        
 
         DataService.getClients().stream()
             .filter(c -> c.getNom().equalsIgnoreCase("Anonyme"))
@@ -167,8 +200,8 @@ public class VenteController {
 
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
-                int nextId = DataService.getClients().stream().mapToInt(Client::getId).max().orElse(0) + 1;
-                return new Client(nextId, txtNom.getText().trim(), txtPrenom.getText().trim(), txtTel.getText().trim());
+                //int nextId = DataService.getClients().stream().mapToInt(Client::getId).max().orElse(0) + 1;
+                return new Client(0, txtNom.getText().trim(), txtPrenom.getText().trim(), txtTel.getText().trim());
             }
             return null;
         });
@@ -181,7 +214,26 @@ public class VenteController {
                 Client realClient = new Client(0, tempClient.getNom(), tempClient.getPrenom(), tempClient.getTelephone());
                 
                 cDao.save(realClient);
-                cmbClient.setValue(realClient);
+
+                //cmbClient.setValue(realClient);
+                
+                /*DataService.getClients().setAll(cDao.getAllClients());
+                
+                cmbClient.getSelectionModel().selectLast();*/
+                
+                DataService.getClients().setAll(cDao.getAllClients());
+                miseAJourClientCombo();
+                
+                Client nvClient = DataService.getClients().stream()
+                		.filter(p -> p.getTelephone().equals(realClient.getTelephone()))
+                		.findFirst().orElse(null);
+                
+                if(nvClient != null) {
+                	if(!clientListRacc.contains(nvClient))
+                		clientListRacc.add(0, nvClient);
+                	cmbClient.setValue(nvClient);
+                }
+                
                 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -190,6 +242,86 @@ public class VenteController {
             }
         });
     }
+    
+    
+    
+    @FXML
+    private void handleSearchClient(ActionEvent ev) {
+    	Dialog<Client> dg = new Dialog<>();
+    	dg.setTitle("Recherche Client");
+    	dg.setHeaderText("Chercher par Nom, Prénom ou Téléphone");
+        dg.setResizable(true);
+        
+        
+        TextField txtClientRech = new TextField();
+        txtClientRech.setPromptText("Chercher...");
+        txtClientRech.setStyle("-fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #ccc; -fx-border-radius: 5;");
+        
+        TableView<Client> tableClients = new TableView<>();
+        TableColumn<Client, String> colNom = new TableColumn<>("Nom");
+        colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        
+        TableColumn<Client, String> colPrenom = new TableColumn<>("Prénom");
+        colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenom"));
+        
+        TableColumn<Client, String> colTel = new TableColumn<>("Tél");
+        colTel.setCellValueFactory(new PropertyValueFactory<>("telephone"));
+        
+        
+        tableClients.getColumns().addAll(colNom, colPrenom, colTel);
+        tableClients.setPrefHeight(300);
+        tableClients.setPrefWidth(400);
+        
+        
+        
+        
+        FilteredList<Client> filteredClients = new FilteredList<>(DataService.getClients(), p -> true);
+        tableClients.setItems(filteredClients);
+        
+        txtClientRech.textProperty().addListener((obs, oldVal, newVal) -> {
+        	filteredClients.setPredicate(c -> {
+        		if(newVal == null || newVal.isEmpty()) return true;
+        		
+        		String minusVal = newVal.toLowerCase();
+        		
+        		return c.getNom().toLowerCase().contains(minusVal)
+        				|| c.getPrenom().toLowerCase().contains(minusVal)
+        				|| c.getTelephone().toLowerCase().contains(minusVal);
+
+        	});
+        });
+        
+        VBox vbox = new VBox(10, txtClientRech, tableClients);
+        vbox.setPadding(new Insets(10));
+        dg.getDialogPane().setContent(vbox);
+        dg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        
+        
+        // soit par double-clic soit par OK
+        
+        tableClients.setOnMouseClicked(e -> {
+        	if(e.getClickCount() == 2 && tableClients.getSelectionModel().getSelectedItem() != null) {
+        		dg.setResult(tableClients.getSelectionModel().getSelectedItem());
+        		dg.close();
+        	}
+        });
+        
+        dg.setResultConverter(btn -> {
+        	if(btn == ButtonType.OK)
+        		return tableClients.getSelectionModel().getSelectedItem();
+        	return null;
+        });
+        
+        dg.showAndWait().ifPresent(cSel -> {
+        	if(!clientListRacc.contains(cSel))
+        		clientListRacc.add(0, cSel);
+        	cmbClient.getSelectionModel().select(cSel);
+        });
+        
+        
+    }
+    
+    
 
     // table produits
     private void setupProductTable() {

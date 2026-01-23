@@ -37,6 +37,11 @@
                                     <Font name="System Bold" size="13.0" />
                                  </font>
                               </Button>
+                              <Button text="🖨 Exporter PDF" onAction="#exportCmdFourPDF" style="-fx-background-color: #546E7A; -fx-text-fill: white;">
+                               <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Button>
                            </children>
                         </HBox>
 

@@ -4,10 +4,12 @@ import application.dao.CommandeFournisseurDAO;
 import application.dao.StockDAO;
 import application.modeles.*;
 import application.services.DataService;
+import application.services.PDFService;
 import application.resources.DatabaseConnection;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -309,4 +311,25 @@ public class FournisseursController {
          dialog.getDialogPane().setContent(tableDetails);
          dialog.showAndWait();
     }
+    
+    
+    
+    @FXML
+    private void exportCmdFourPDF(ActionEvent ae) {
+    	if(sortedData == null || sortedData.isEmpty()) return;
+    	
+    	ObservableList<CommandeFournisseur> currView = tableCommandes.getItems();
+    	tableCommandes.setItems(sortedData);
+    	
+    	
+		try {
+			PDFService.exportTableViewToPDF(tableCommandes, "Historique Commandes Fournisseurs", (Stage) tableCommandes.getScene().getWindow(), "Actions");
+    	} catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Erreur lors de l'export PDF").show();
+        }
+    }
+    
+    
+    
 }

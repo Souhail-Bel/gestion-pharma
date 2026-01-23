@@ -33,6 +33,7 @@
                               <DatePicker fx:id="datePickerEnd" prefWidth="110.0" promptText="Au..." style="-fx-background-radius: 5; -fx-border-color: #E0E0E0; -fx-border-radius: 5;" />
                               <TextField fx:id="txtSearchClient" promptText="Nom du client..." HBox.hgrow="ALWAYS" style="-fx-background-radius: 5; -fx-border-color: #E0E0E0; -fx-border-radius: 5;" />
                               <Button onAction="#handleClearFilters" text="Effacer" style="-fx-background-radius: 5;" />
+                              <Button text="🖨 Exporter PDF" onAction="#exportHistoriquePDF" style="-fx-background-color: #546E7A; -fx-text-fill: white;"/>
                            </children>
                         </HBox>
                         
@@ -56,12 +57,20 @@
                <children>
                   <VBox layoutX="66.0" layoutY="88.0" prefHeight="598.0" prefWidth="356.0" spacing="10.0" style="-fx-padding: 10; -fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label text="Détails de la commande">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="lblDetailInfo" text="Sélectionnez une vente..." textFill="#616161" wrapText="true" />
+                     <HBox alignment="CENTER_LEFT" spacing="10.0">
+   <VBox HBox.hgrow="ALWAYS">
+      <children>
+         <Label text="Détails de la commande">
+            <font>
+               <Font name="System Bold" size="14.0" />
+            </font>
+         </Label>
+         <Label fx:id="lblDetailInfo" text="Sélectionnez une vente..." textFill="#616161" wrapText="true" />
+      </children>
+   </VBox>
+   
+   <Button onAction="#exportRecettePDF" style="-fx-background-color: #546E7A; -fx-text-fill: white; -fx-cursor: hand;" text="🖨 Reçu" />
+</HBox>
                         <TableView fx:id="tableDetails" VBox.vgrow="ALWAYS">
                           <columns>
                             <TableColumn fx:id="colDetProduit" prefWidth="150.0" text="Produit" />

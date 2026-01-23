@@ -258,7 +258,7 @@ public class StockController {
             tableStock.refresh();
 
 
-            PDFService.exportTableViewToPDF(tableStock, "Inventaire_Stock", (Stage) tableStock.getScene().getWindow());
+            PDFService.exportTableViewToPDF(tableStock, "Inventaire_Stock", (Stage) tableStock.getScene().getWindow(), "ID");
 
             tableStock.setItems(currentView);
             tableStock.refresh();

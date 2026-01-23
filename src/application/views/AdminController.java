@@ -174,7 +174,7 @@ public class AdminController {
     @FXML
     private void exportFournisseursPDF(ActionEvent event) {
     	try {
-        PDFService.exportTableViewToPDF(tableGestionFournisseurs, "Liste Fournisseurs", (Stage) globalBox.getScene().getWindow());
+        PDFService.exportTableViewToPDF(tableGestionFournisseurs, "Liste Fournisseurs", (Stage) globalBox.getScene().getWindow(), "Actions");
     	} catch (Exception e) {
             e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, "Erreur lors de l'export PDF").show();

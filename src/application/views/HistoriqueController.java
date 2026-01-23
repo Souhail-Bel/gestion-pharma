@@ -3,17 +3,21 @@ package application.views;
 import application.modeles.LigneVente;
 import application.modeles.Vente;
 import application.services.DataService;
+import application.services.PDFService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -118,5 +122,37 @@ public class HistoriqueController {
     	List<Vente> res = DataService.searchVentes(dateMin, dateMax, clientNom);
     	
     	tableVentes.setItems(FXCollections.observableArrayList(res));
+    }
+    
+    
+    @FXML
+    private void exportHistoriquePDF(ActionEvent ae) {
+    	if(tableVentes.getItems().isEmpty()) return;
+    	
+    	try {
+            PDFService.exportTableViewToPDF(tableVentes, "Rapport Ventes", (Stage) tableVentes.getScene().getWindow(), "#");
+        	} catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Erreur lors de l'export PDF").show();
+            }
+    }
+    
+    
+    @FXML
+    private void exportRecettePDF(ActionEvent ae) {
+if(tableDetails.getItems().isEmpty()) return;
+    	
+Vente selectionne = tableVentes.getSelectionModel().getSelectedItem();
+String infoClient = (selectionne != null && selectionne.getClient() != null) ?
+		 selectionne.getClient().toString()
+		 : "Client";
+String totalTxt = "TOTAL: " + String.format("%.3f", selectionne.getTotal()) + " TND";
+
+    	try {
+            PDFService.exportTableViewToPDFTotal(tableDetails, "Facture " + infoClient, (Stage) tableVentes.getScene().getWindow(), totalTxt);
+        	} catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Erreur lors de l'export PDF").show();
+            }
     }
 }

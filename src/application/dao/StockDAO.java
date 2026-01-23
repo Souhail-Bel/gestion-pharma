@@ -31,9 +31,11 @@ public class StockDAO {
     }
 
     public void register(Stock s) throws SQLException {
+        ProduitDAO pDao = new ProduitDAO(connection);
+        pDao.register(s.getProduit());
         String query = "INSERT INTO STOCK (produit_id,quantitedisponible) VALUES(?,?);";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, s.getProduitId());
+            stmt.setInt(1, pDao.findByName(s.getProduit().getNom()).getId());
             stmt.setInt(2, s.getQuantiteDisponible());
             stmt.executeUpdate();
         }

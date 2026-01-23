@@ -1,20 +1,31 @@
 package application.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 import application.modeles.CommandeFournisseur;
 import application.modeles.Fournisseur;
 import application.modeles.LigneCommandeFournisseur;
 import application.modeles.Produit;
 import application.modeles.StatutCommande;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
 public class CommandeFournisseurDAO {
+
     private Connection connection;
 
-    public CommandeFournisseurDAO(Connection connection) { this.connection = connection; }
+    public CommandeFournisseurDAO(Connection connection) {
+        this.connection = connection;
+    }
 
+    /**
+     * Récupère toutes les commandes fournisseurs avec leurs lignes
+     */
     public ArrayList<CommandeFournisseur> getAll() throws SQLException {
         ArrayList<CommandeFournisseur> list = new ArrayList<>();
         String query = "SELECT c.*, f.id as f_id, f.nom, f.telephone, f.email, f.adresse FROM COMMANDE_FOURNISSEUR c JOIN FOURNISSEUR f ON c.fournisseur_id = f.id ORDER BY dateCommande DESC";
@@ -29,6 +40,9 @@ public class CommandeFournisseurDAO {
         return list;
     }
 
+    /**
+     * Récupère les lignes d'une commande spécifique
+     */
     private ArrayList<LigneCommandeFournisseur> getLignesForCommande(int cmdId) throws SQLException {
         ArrayList<LigneCommandeFournisseur> lignes = new ArrayList<>();
         String query = "SELECT l.*, p.id as p_id, p.nom, p.prixVente, p.seuilMinimal FROM LIGNE_COMMANDE_FOURNISSEUR l JOIN PRODUIT p ON l.produit_id = p.id WHERE commande_id = ?";
@@ -43,25 +57,29 @@ public class CommandeFournisseurDAO {
         }
         return lignes;
     }
-    
 
+    /**
+     * Sauvegarde une nouvelle commande fournisseur avec ses lignes
+     *
+     * @return L'ID généré de la nouvelle commande
+     */
     public int save(CommandeFournisseur cmd) throws SQLException {
         String query = "INSERT INTO COMMANDE_FOURNISSEUR (fournisseur_id, dateCommande, statut) VALUES (?, ?, ?)";
-        
+
         try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             stmt.setInt(1, cmd.getFournisseur().getId());
-            stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDate())); 
+            stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDate()));
             stmt.setString(3, cmd.getStatut().toString());
-            
+
             stmt.executeUpdate();
-            
+
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 int newId = rs.getInt(1);
-                cmd.setId(newId); 
+                cmd.setId(newId);
                 saveLignes(cmd.getLignes(), newId);
-                
+
                 return newId;
             }
             return -1;
@@ -82,6 +100,10 @@ public class CommandeFournisseurDAO {
         }
     }
 
+    /**
+     * Met à jour une commande et ses lignes Supprime les lignes précédentes et
+     * les remplace par les nouvelles
+     */
     public void update(CommandeFournisseur cmd) throws SQLException {
         String query = "UPDATE COMMANDE_FOURNISSEUR SET fournisseur_id=?, statut=? WHERE id=?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -98,15 +120,18 @@ public class CommandeFournisseurDAO {
         }
         saveLignes(cmd.getLignes(), cmd.getId());
     }
-    
+
+    /**
+     * Met à jour le statut d'une commande
+     */
     public void updateStatut(int id, StatutCommande statut) throws SQLException {
         String query = "UPDATE COMMANDE_FOURNISSEUR SET statut = ? WHERE id = ?";
-        
+
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, statut.toString());
             stmt.setInt(2, id);
             stmt.executeUpdate();
         }
     }
-    
+
 }

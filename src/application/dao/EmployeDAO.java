@@ -1,13 +1,23 @@
 package application.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import application.modeles.Employe;
-import java.sql.*;
 
 public class EmployeDAO {
+
     private Connection connection;
 
     public EmployeDAO(Connection connection) {
         this.connection = connection;
     }
+
+    /**
+     * Recherche un employé par son ID
+     */
     public Employe findById(int id) throws SQLException {
         String query = "SELECT * FROM EMPLOYE WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -15,12 +25,12 @@ public class EmployeDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Employe(
-                    rs.getInt("id"),
-                    rs.getString("nom"),
-                    rs.getString("prenom"),
-                    rs.getString("username"),
-                    rs.getString("password"),
-                    rs.getString("role")
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("prenom"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("role")
                 );
             } else {
                 return null;
@@ -28,6 +38,10 @@ public class EmployeDAO {
         }
     }
 
+    /**
+     * Recherche un employé par son nom d'utilisateur Utilisé pour
+     * l'authentification lors de la connexion
+     */
     public Employe findEmployeByUsername(String username) throws SQLException {
         String query = "SELECT * FROM EMPLOYE WHERE username = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -35,19 +49,17 @@ public class EmployeDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return new Employe(
-                    rs.getInt("id"),
-                    rs.getString("nom"),
-                    rs.getString("prenom"),
-                    rs.getString("username"),
-                    rs.getString("password"),
-                    rs.getString("role")
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getString("prenom"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("role")
                 );
             } else {
                 return null;
             }
         }
     }
-
-
 
 }

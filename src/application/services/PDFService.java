@@ -1,10 +1,19 @@
 package application.services;
 
 import com.itextpdf.io.exceptions.IOException;
+import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.events.Event;
+import com.itextpdf.kernel.events.IEventHandler;
+import com.itextpdf.kernel.events.PdfDocumentEvent;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
@@ -53,6 +62,9 @@ public class PDFService {
             if (file != null) {
                 PdfWriter writer = new PdfWriter(file);
                 PdfDocument pdf = new PdfDocument(writer);
+                
+                pdf.addEventHandler(PdfDocumentEvent.END_PAGE, new PageFooter());
+                
                 Document document = new Document(pdf);
                 
                 DeviceRgb accent = new DeviceRgb(0, 150, 150);
@@ -181,19 +193,66 @@ public class PDFService {
                 
                 if(alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
                 	// separer JavaFX et AWT threads
-                	// resoudre interblocage sur Linux
-                	new Thread(() -> {
-                		try {
-	                		if(Desktop.isDesktopSupported()) Desktop.getDesktop().open(file);
-	                	} catch(java.io.IOException ex) {
-	                		ex.printStackTrace();
-	                	}
-                	}).start();
+                	// interblocage
+                	String os = System.getProperty("os.name").toLowerCase();
+                    
+                    if (os.contains("linux")) {
+                        // gdk/awt conflit sur linux
+                        Runtime.getRuntime().exec(new String[]{"xdg-open", file.getAbsolutePath()});
+                    } else {
+                        // java desktop sur windows/max
+                        new Thread(() -> {
+                            try {
+                                if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(file);
+                            } catch (java.io.IOException ex) { ex.printStackTrace(); }
+                        }).start();
+                    }
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    
+    
+    private static class PageFooter implements IEventHandler {
+    	@Override
+    	public void handleEvent(Event ev) {
+    		PdfDocumentEvent docEvent = (PdfDocumentEvent) ev;
+            PdfDocument pdfDoc = docEvent.getDocument();
+            PdfPage page = docEvent.getPage();
+            
+            int pageNumber = pdfDoc.getPageNumber(page);
+            int pageTotal = pdfDoc.getNumberOfPages();
+            Rectangle pageSize = page.getPageSize();
+            
+            PdfCanvas canvas = new PdfCanvas(page.newContentStreamBefore(), page.getResources(), pdfDoc);
+            
+            try {
+                /*canvas.beginText()
+                      .setFontAndSize(PdfFontFactory.createFont(StandardFonts.HELVETICA), 9)
+                      .moveText(pageSize.getWidth() / 2 - 10, 20) 
+                      .showText("PAGE " + pageNumber + " sur " + pageTotal)
+                      .endText();*/
+Canvas c = new Canvas(canvas, pageSize);
+                
+                c.showTextAligned(
+                    new Paragraph("PAGE " + pageNumber + " sur " + pageTotal)
+                        .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA))
+                        .setFontSize(9),
+                    pageSize.getWidth() / 2,
+                    20,
+                    TextAlignment.CENTER
+                );
+                
+                c.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            canvas.release();
+    	}
     }
 }
